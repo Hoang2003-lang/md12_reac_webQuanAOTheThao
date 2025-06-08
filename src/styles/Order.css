@@ -1,0 +1,146 @@
+.order-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .order-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    margin-top: 2rem;
+  }
+  
+  .order-table th,
+  .order-table td {
+    padding: 1.7rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+    font-size: 1rem;
+  }
+  
+  .order-table th {
+    background: #f4f6fb;
+    color: #22223b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  .order-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .order-table tbody tr {
+    transition: background 0.2s;
+  }
+  
+  .order-table tbody tr:hover {
+    background: #f7faff;
+  }
+  
+  /* Loại bỏ viền ngoài bảng */
+  .order-table, .order-table th, .order-table td {
+    border: none;
+  }
+  
+  .order-status-badge {
+    display: inline-block;
+    padding: 0.18em 0.95em;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.97rem;
+    border: none;
+    white-space: nowrap;
+    margin: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    vertical-align: middle;
+    letter-spacing: 0.01em;
+    background: #f4f4f4;
+    color: #333;
+  }
+  
+  .order-status-pending {
+    background: #fff3cd;
+    color: #b28704;
+    border: 1px solid #ffe082;
+  }
+  
+  .order-status-confirmed {
+    background: #e0f7fa;
+    color: #00897b;
+    border: 1px solid #b2dfdb;
+  }
+  
+  .order-status-cancelled {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+  
+  .order-status-badge:hover {
+    filter: brightness(0.97);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+  
+  .order-status-action-wrap {
+    display: inline-block;
+    position: relative;
+    text-align: left;
+    vertical-align: middle;
+  }
+  
+  .order-action-dropdown {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    border-radius: 12px;
+    z-index: 20;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    min-width: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    animation: fadeIn 0.18s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .order-action-dropdown .btn {
+    width: 100%;
+    margin: 0;
+    border-radius: 8px;
+    font-size: 0.97rem;
+    padding: 0.45rem 0.5rem;
+    font-weight: 600;
+    border: none;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  
+  .btn-confirm {
+    background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+    color: #fff;
+  }
+  
+  .btn-cancel {
+    background: linear-gradient(90deg, #ff5858 0%, #f857a6 100%);
+    color: #fff;
+  }
+  
+  .btn-confirm:hover {
+    background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
+  }
+  
+  .btn-cancel:hover {
+    background: linear-gradient(90deg, #e63946 0%, #ff5858 100%);
+  }
+  
