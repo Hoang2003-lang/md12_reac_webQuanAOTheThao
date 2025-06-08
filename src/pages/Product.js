@@ -7,6 +7,13 @@ const productsData = [
     { id: 4, name: 'Bóng đá', price: 500000, size: '5', image: 'https://example.com/ball.jpg', stock: 20, category: 'Phụ kiện' },
 ];
 
+const EditIcon = () => (
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#fff" strokeWidth="2" d="M16.475 5.408l2.117-2.116a2 2 0 112.829 2.828l-2.116 2.117m-2.83-2.83l-9.193 9.192a2 2 0 00-.497.828l-1.06 3.182a1 1 0 001.265 1.265l3.182-1.06a2 2 0 00.828-.497l9.192-9.193m-2.83-2.83l2.83 2.83"/></svg>
+);
+const DeleteIcon = () => (
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#fff" strokeWidth="2" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/></svg>
+);
+
 const Product = () => {
     const [products, setProducts] = useState(productsData);
     const handleDelete = (id) => setProducts(products.filter(p => p.id !== id));
@@ -26,12 +33,14 @@ const Product = () => {
                             <td>{product.name}</td>
                             <td>{product.price.toLocaleString('vi-VN')} VNĐ</td>
                             <td>{product.size}</td>
-                            <td><img src={product.image} alt={product.name} className="product-image" /></td>
+                            <td><img src={product.image} alt={product.name} style={{ width: '50px', height: '50px' }} /></td>
                             <td>{product.stock}</td>
                             <td>{product.category}</td>
                             <td>
-                                <button className="btn-edit">Sửa</button>
-                                <button onClick={() => handleDelete(product.id)} className="btn-delete">Xóa</button>
+                                <div className="action-buttons">
+                                    <button className="btn btn-edit">Sửa</button>
+                                    <button onClick={() => handleDelete(product.id)} className="btn btn-delete">Xóa</button>
+                                </div>
                             </td>
                         </tr>
                     ))}
