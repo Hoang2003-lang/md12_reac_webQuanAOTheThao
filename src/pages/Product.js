@@ -46,7 +46,12 @@ const Product = () => {
 
     return (
         <div className="product-container">
-            <h2>Quản lý sản phẩm</h2>
+            <div className="product-header">
+                <h2>Quản lý sản phẩm</h2>
+                <button className="btn btn-add" onClick={() => {/* TODO: Hiện form thêm sản phẩm */}}>
+                    Thêm
+                </button>
+            </div>
             <div className="table-responsive">
                 <table className="product-table">
                     <thead>
