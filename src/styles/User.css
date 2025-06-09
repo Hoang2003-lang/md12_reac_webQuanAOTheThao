@@ -1,0 +1,271 @@
+.user-management {
+  padding: 32px 0;
+  background: #f4f6f8;
+  min-height: 100vh;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding: 24px 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.user-header h2 {
+  margin: 0;
+  color: #222;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.user-stats {
+  display: flex;
+  gap: 18px;
+}
+
+.stat-item {
+  padding: 7px 18px;
+  background: #e3eafc;
+  border-radius: 20px;
+  font-size: 15px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.user-table th,
+.user-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-table th {
+  background: #f7fafd;
+  font-weight: 700;
+  color: #222;
+  font-size: 1rem;
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-table tr:hover {
+  background: #f5faff;
+}
+
+.id-cell {
+  font-family: 'Fira Mono', monospace;
+  color: #888;
+  font-size: 0.97em;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+  background: #fff;
+  border: 2px solid;
+  margin: 0 2px;
+}
+
+.role-badge.admin {
+  color: #43a047;           /* Green */
+  border-color: #43a047;
+  background: #fff;
+}
+
+.role-badge.user {
+  color: #e53935;           /* Red */
+  border-color: #e53935;
+  background: #fff;
+}
+
+.btn-delete {
+  padding: 8px 24px;
+  background: #ff4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(255,68,68,0.08);
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #d32f2f;
+  box-shadow: 0 4px 8px rgba(255,68,68,0.12);
+}
+
+.btn-delete:disabled {
+  background: #cccccc;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 18px;
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 5px solid #e3eafc;
+  border-top: 5px solid #1976d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #ff4444;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+  width: 350px;
+  max-width: 95vw;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 14px 0;
+  color: #222;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.modal-content p {
+  margin: 0 0 28px 0;
+  color: #555;
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.btn-cancel {
+  padding: 8px 24px;
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(33,150,243,0.08);
+}
+
+.btn-cancel:hover {
+  background: #1976d2;
+  box-shadow: 0 4px 8px rgba(33,150,243,0.12);
+}
+
+.btn-confirm-delete {
+  padding: 8px 24px;
+  background: #ff4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(255,68,68,0.08);
+}
+
+.btn-confirm-delete:hover {
+  background: #d32f2f;
+  box-shadow: 0 4px 8px rgba(255,68,68,0.12);
+}
+
+/* Success Toast Styles */
+.success-toast {
+  position: fixed;
+  top: 24px;
+  right: 32px;
+  background: #4caf50;
+  color: #fff;
+  padding: 16px 28px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.18);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 1001;
+  font-size: 1rem;
+  font-weight: 600;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-icon {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+} 
