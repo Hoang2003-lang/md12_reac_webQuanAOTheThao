@@ -48,7 +48,14 @@ const Product = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await productAPI.createProduct(newProduct);
+            // Chuyển đổi price và stock thành số
+            const productData = {
+                ...newProduct,
+                price: Number(newProduct.price),
+                stock: Number(newProduct.stock)
+            };
+
+            const response = await productAPI.createProduct(productData);
             setProducts([...products, response]);
             setShowAddForm(false);
             setNewProduct({
@@ -60,7 +67,7 @@ const Product = () => {
             });
             alert('Thêm sản phẩm thành công!');
         } catch (err) {
-            alert('Không thể thêm sản phẩm');
+            alert('Không thể thêm sản phẩm: ' + (err.message || 'Lỗi không xác định'));
             console.error('Error adding product:', err);
         }
     };
@@ -180,7 +187,7 @@ const Product = () => {
                             <tr key={product._id}>
                                 <td>{product._id}</td>
                                 <td>{product.name}</td>
-                                <td>{product.price.toLocaleString('vi-VN')} VNĐ</td>
+                                <td>{product.price?.toLocaleString('vi-VN') || 'N/A'} VNĐ</td>
                                 <td>
                                     <img 
                                         src={product.image} 

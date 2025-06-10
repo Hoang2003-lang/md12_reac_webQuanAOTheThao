@@ -7,7 +7,7 @@ export const API_ENDPOINTS = {
     PRODUCTS: {
         LIST: `${API_BASE_URL}/products`,
         DETAIL: (id) => `${API_BASE_URL}/products/${id}`,
-        CREATE: `${API_BASE_URL}/products`,
+        CREATE: `${API_BASE_URL}/products/add`,
         UPDATE: (id) => `${API_BASE_URL}/products/${id}`,
         DELETE: (id) => `${API_BASE_URL}/products/${id}`,
     }
@@ -84,10 +84,12 @@ export const productAPI = {
     }
 };
 
-export default {
+const apiConfig = {
     API_BASE_URL,
     API_ENDPOINTS,
     getHeaders,
     handleResponse,
     productAPI
-}; 
+};
+
+export default apiConfig; 
