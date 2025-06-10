@@ -14,6 +14,10 @@ const Product = () => {
         description: '',
         image: ''
     });
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [showDetail, setShowDetail] = useState(false);
+    const [loadingDetail, setLoadingDetail] = useState(false);
+    const [errorDetail, setErrorDetail] = useState(null);
 
     // Fetch products on component mount
     useEffect(() => {
@@ -47,6 +51,11 @@ const Product = () => {
     // Handle form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Validate
+        if (!newProduct.name.trim() || !newProduct.image.trim()) {
+            alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
+            return;
+        }
         try {
             // Chuyển đổi price và stock thành số
             const productData = {
@@ -83,6 +92,22 @@ const Product = () => {
                 alert('Không thể xóa sản phẩm');
                 console.error('Error deleting product:', err);
             }
+        }
+    };
+
+    // Xem chi tiết sản phẩm
+    const handleShowDetail = async (id) => {
+        setShowDetail(true);
+        setLoadingDetail(true);
+        setErrorDetail(null);
+        try {
+            const detail = await productAPI.getProductById(id);
+            setSelectedProduct(detail);
+        } catch (err) {
+            setErrorDetail('Không thể tải chi tiết sản phẩm');
+            setSelectedProduct(null);
+        } finally {
+            setLoadingDetail(false);
         }
     };
 
@@ -169,6 +194,34 @@ const Product = () => {
                 </div>
             )}
 
+            {/* Modal chi tiết sản phẩm */}
+            {showDetail && (
+                <div className="add-product-form">
+                    <div className="form-overlay" onClick={() => setShowDetail(false)}></div>
+                    <div className="form-content">
+                        {loadingDetail ? (
+                            <div className="loading">Đang tải chi tiết...</div>
+                        ) : errorDetail ? (
+                            <div className="error">{errorDetail}</div>
+                        ) : selectedProduct ? (
+                            <>
+                                <h3>Chi tiết sản phẩm</h3>
+                                <img
+                                    src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
+                                    alt={selectedProduct.name || 'No name'}
+                                    style={{width: 120, height: 120, objectFit: 'cover', borderRadius: 8, margin: '0 auto 1rem'}}
+                                />
+                                <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
+                                <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
+                                <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
+                                <p><b>Mô tả:</b> {selectedProduct.description || 'Không có mô tả'}</p>
+                                <button className="btn btn-cancel" onClick={() => setShowDetail(false)}>Đóng</button>
+                            </>
+                        ) : null}
+                    </div>
+                </div>
+            )}
+
             <div className="table-responsive">
                 <table className="product-table">
                     <thead>
@@ -184,29 +237,34 @@ const Product = () => {
                     </thead>
                     <tbody>
                         {products.map(product => (
-                            <tr key={product._id}>
+                            <tr key={product._id} onClick={() => handleShowDetail(product._id)} style={{cursor: 'pointer'}}>
                                 <td>{product._id}</td>
-                                <td>{product.name}</td>
-                                <td>{product.price?.toLocaleString('vi-VN') || 'N/A'} VNĐ</td>
+                                <td>{product.name ? product.name : 'Không có tên'}</td>
                                 <td>
-                                    <img 
-                                        src={product.image} 
-                                        alt={product.name} 
+                                    {typeof product.price === 'number' && !isNaN(product.price)
+                                        ? product.price.toLocaleString('vi-VN') + ' VNĐ'
+                                        : 'N/A'}
+                                </td>
+                                <td>
+                                    <img
+                                        src={product.image ? product.image : 'https://via.placeholder.com/60x60?text=No+Image'}
+                                        alt={product.name ? product.name : 'No name'}
                                         className="product-image"
+                                        style={{ objectFit: 'cover' }}
                                     />
                                 </td>
-                                <td>{product.stock}</td>
-                                <td className="description-cell">{product.description}</td>
+                                <td>{product.stock ?? 'N/A'}</td>
+                                <td className="description-cell">{product.description || 'Không có mô tả'}</td>
                                 <td>
-                                    <div className="action-buttons">
-                                        <button 
+                                    <div className="action-buttons" onClick={e => e.stopPropagation()}>
+                                        <button
                                             className="btn btn-edit"
                                             onClick={() => {/* TODO: Implement edit */}}
                                         >
                                             Sửa
                                         </button>
-                                        <button 
-                                            onClick={() => handleDelete(product._id)} 
+                                        <button
+                                            onClick={() => handleDelete(product._id)}
                                             className="btn btn-delete"
                                         >
                                             Xóa
