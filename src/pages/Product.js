@@ -6,6 +6,14 @@ const Product = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newProduct, setNewProduct] = useState({
+        name: '',
+        price: '',
+        stock: '',
+        description: '',
+        image: ''
+    });
 
     // Fetch products on component mount
     useEffect(() => {
@@ -24,6 +32,36 @@ const Product = () => {
             console.error('Error fetching products:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Handle input change
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewProduct(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // Handle form submit
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await productAPI.createProduct(newProduct);
+            setProducts([...products, response]);
+            setShowAddForm(false);
+            setNewProduct({
+                name: '',
+                price: '',
+                stock: '',
+                description: '',
+                image: ''
+            });
+            alert('Thêm sản phẩm thành công!');
+        } catch (err) {
+            alert('Không thể thêm sản phẩm');
+            console.error('Error adding product:', err);
         }
     };
 
@@ -48,10 +86,82 @@ const Product = () => {
         <div className="product-container">
             <div className="product-header">
                 <h2>Quản lý sản phẩm</h2>
-                <button className="btn btn-add" onClick={() => {/* TODO: Hiện form thêm sản phẩm */}}>
+                <button 
+                    className="btn btn-add" 
+                    onClick={() => setShowAddForm(true)}
+                >
                     Thêm
                 </button>
             </div>
+
+            {showAddForm && (
+                <div className="add-product-form">
+                    <div className="form-overlay" onClick={() => setShowAddForm(false)}></div>
+                    <form onSubmit={handleSubmit} className="form-content">
+                        <h3>Thêm sản phẩm mới</h3>
+                        <div className="form-group">
+                            <label>Tên sản phẩm:</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={newProduct.name}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Giá:</label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={newProduct.price}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Số lượng:</label>
+                            <input
+                                type="number"
+                                name="stock"
+                                value={newProduct.stock}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Mô tả:</label>
+                            <textarea
+                                name="description"
+                                value={newProduct.description}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Link hình ảnh:</label>
+                            <input
+                                type="url"
+                                name="image"
+                                value={newProduct.image}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-buttons">
+                            <button type="submit" className="btn btn-submit">Lưu</button>
+                            <button 
+                                type="button" 
+                                className="btn btn-cancel"
+                                onClick={() => setShowAddForm(false)}
+                            >
+                                Hủy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
             <div className="table-responsive">
                 <table className="product-table">
                     <thead>
