@@ -106,7 +106,7 @@ const User = () => {
               <th>ID</th>
               <th>Họ tên</th>
               <th>Email</th>
-              <th>Role</th>
+              <th>Vai trò</th>
               <th>Ngày tạo</th>
               <th>Hành động</th>
             </tr>

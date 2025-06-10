@@ -10,6 +10,14 @@ export const API_ENDPOINTS = {
         CREATE: `${API_BASE_URL}/products/add`,
         UPDATE: (id) => `${API_BASE_URL}/products/${id}`,
         DELETE: (id) => `${API_BASE_URL}/products/${id}`,
+    },
+    // Post endpoints
+    POSTS: {
+        LIST: `${API_BASE_URL}/posts`,
+        DETAIL: (id) => `${API_BASE_URL}/posts/${id}`,
+        CREATE: `${API_BASE_URL}/posts/add`,
+        UPDATE: (id) => `${API_BASE_URL}/posts/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/posts/${id}`,
     }
 };
 
@@ -84,12 +92,61 @@ export const productAPI = {
     }
 };
 
+// Post API Services
+export const postAPI = {
+    // Get all posts
+    getAllPosts: async () => {
+        const response = await fetch(API_ENDPOINTS.POSTS.LIST, {
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
+
+    // Get post by ID
+    getPostById: async (id) => {
+        const response = await fetch(API_ENDPOINTS.POSTS.DETAIL(id), {
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
+
+    // Create new post
+    createPost: async (postData) => {
+        const response = await fetch(API_ENDPOINTS.POSTS.CREATE, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(postData)
+        });
+        return handleResponse(response);
+    },
+
+    // Update post
+    updatePost: async (id, postData) => {
+        const response = await fetch(API_ENDPOINTS.POSTS.UPDATE(id), {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(postData)
+        });
+        return handleResponse(response);
+    },
+
+    // Delete post
+    deletePost: async (id) => {
+        const response = await fetch(API_ENDPOINTS.POSTS.DELETE(id), {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    }
+};
+
 const apiConfig = {
     API_BASE_URL,
     API_ENDPOINTS,
     getHeaders,
     handleResponse,
-    productAPI
+    productAPI,
+    postAPI
 };
 
 export default apiConfig; 
