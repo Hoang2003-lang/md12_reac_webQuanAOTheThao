@@ -82,6 +82,7 @@
   max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
+ 
 }
 
 .form-group {
@@ -89,9 +90,11 @@
 }
 
 .form-group label {
-  display: block;
+  display: flex;
   margin-bottom: 5px;
   font-weight: bold;
+  width: 100px;
+  height: 100px;
 }
 
 .form-group input,

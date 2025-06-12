@@ -1,37 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { postAPI } from '../config/api';
+import axios from 'axios';
 import '../styles/Post.css';
 
 // Mock data for testing
-const mockPosts = [
-  {
-    _id: '1',
-    title: 'Lịch thi đấu Premier League mùa giải 2023/24',
-    content: 'Chi tiết lịch thi đấu và kết quả các trận đấu của Premier League...',
-    image: 'https://example.com/premier-league.jpg',
-    category: 'Bóng đá',
-    status: 'published',
-    createdAt: '2024-03-15T10:00:00Z'
-  },
-  {
-    _id: '2',
-    title: 'Top 10 cầu thủ xuất sắc nhất thế giới 2024',
-    content: 'Danh sách những cầu thủ xuất sắc nhất thế giới trong năm 2024...',
-    image: 'https://example.com/top-players.jpg',
-    category: 'Bóng đá',
-    status: 'published',
-    createdAt: '2024-03-14T15:30:00Z'
-  },
-  {
-    _id: '3',
-    title: 'Hướng dẫn chọn giày đá bóng phù hợp',
-    content: 'Cách chọn giày đá bóng phù hợp với vị trí và phong cách chơi...',
-    image: 'https://example.com/football-shoes.jpg',
-    category: 'Thể thao',
-    status: 'draft',
-    createdAt: '2024-03-13T09:15:00Z'
-  }
-];
+
 
 const Post = () => {
   const [posts, setPosts] = useState([]);
@@ -55,8 +27,8 @@ const Post = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      // Sử dụng mock data thay vì gọi API
-      setPosts(mockPosts);
+      const response = await axios.get('http://localhost:3001/api/posts');
+      setPosts(Array.isArray(response.data.data) ? response.data.data : []);
       setError(null);
     } catch (err) {
       setError('Không thể tải danh sách bài viết');
