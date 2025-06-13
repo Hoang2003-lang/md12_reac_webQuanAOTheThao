@@ -7,6 +7,8 @@ const Product = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
     const [newProduct, setNewProduct] = useState({
         name: '',
         price: '',
@@ -111,6 +113,51 @@ const Product = () => {
         }
     };
 
+    // Handle edit button click
+    const handleEdit = (product) => {
+        setEditingProduct(product);
+        setNewProduct({
+            name: product.name || '',
+            price: product.price || '',
+            stock: product.stock || '',
+            description: product.description || '',
+            image: product.image || ''
+        });
+        setShowEditForm(true);
+    };
+
+    // Handle update submit
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if (!newProduct.name.trim() || !newProduct.image.trim()) {
+            alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
+            return;
+        }
+        try {
+            const productData = {
+                ...newProduct,
+                price: Number(newProduct.price),
+                stock: Number(newProduct.stock)
+            };
+
+            const updatedProduct = await productAPI.updateProduct(editingProduct._id, productData);
+            setProducts(products.map(p => p._id === editingProduct._id ? updatedProduct : p));
+            setShowEditForm(false);
+            setEditingProduct(null);
+            setNewProduct({
+                name: '',
+                price: '',
+                stock: '',
+                description: '',
+                image: ''
+            });
+            alert('Cập nhật sản phẩm thành công!');
+        } catch (err) {
+            alert('Không thể cập nhật sản phẩm: ' + (err.message || 'Lỗi không xác định'));
+            console.error('Error updating product:', err);
+        }
+    };
+
     if (loading) return <div className="loading">Đang tải...</div>;
     if (error) return <div className="error">{error}</div>;
 
@@ -194,6 +241,74 @@ const Product = () => {
                 </div>
             )}
 
+            {showEditForm && (
+                <div className="add-product-form">
+                    <div className="form-overlay" onClick={() => setShowEditForm(false)}></div>
+                    <form onSubmit={handleUpdate} className="form-content">
+                        <h3>Sửa sản phẩm</h3>
+                        <div className="form-group">
+                            <label>Tên sản phẩm:</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={newProduct.name}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Giá:</label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={newProduct.price}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Số lượng:</label>
+                            <input
+                                type="number"
+                                name="stock"
+                                value={newProduct.stock}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Mô tả:</label>
+                            <textarea
+                                name="description"
+                                value={newProduct.description}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Link hình ảnh:</label>
+                            <input
+                                type="url"
+                                name="image"
+                                value={newProduct.image}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-buttons">
+                            <button type="submit" className="btn btn-submit">Cập nhật</button>
+                            <button 
+                                type="button" 
+                                className="btn btn-cancel"
+                                onClick={() => setShowEditForm(false)}
+                            >
+                                Hủy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
             {/* Modal chi tiết sản phẩm */}
             {showDetail && (
                 <div className="add-product-form">
@@ -259,7 +374,10 @@ const Product = () => {
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
                                         <button
                                             className="btn btn-edit"
-                                            onClick={() => {/* TODO: Implement edit */}}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEdit(product);
+                                            }}
                                         >
                                             Sửa
                                         </button>

@@ -112,7 +112,7 @@ const Post = () => {
       <div className="post-header">
         <h2>Quản lý bài viết</h2>
         <button className="add-button" onClick={() => setShowAddModal(true)}>
-          Thêm bài viết mới
+          Thêm bài viết
         </button>
       </div>
 
