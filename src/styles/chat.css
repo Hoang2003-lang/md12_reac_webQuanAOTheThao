@@ -1,0 +1,135 @@
+.chat-box {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 360px;
+  height: 520px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  overflow: hidden;
+  z-index: 1000;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.chat-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: #4486ff; /* xanh dương hiện đại */
+  color: white;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.chat-icon:hover {
+  transform: scale(1.1);
+  background: #3a76e8;
+}
+
+
+.user-list {
+  width: 120px;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.user-item {
+  cursor: pointer;
+  padding: 6px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: background 0.2s;
+  font-size: 12px;
+}
+
+.user-item:hover,
+.user-item.selected {
+  background-color: #e6f0ff;
+  font-weight: 600;
+}
+
+.chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f2f5;
+}
+
+.messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tin nhắn */
+.message {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  line-height: 1.4;
+  word-break: break-word;
+  font-size: 14px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Tin nhắn từ người dùng (canh trái, nền xám nhạt) */
+.message.user {
+  align-self: flex-start;
+  background-color: #e4e6eb;
+  color: #000;
+  border-top-left-radius: 4px;
+}
+
+/* Tin nhắn từ admin (canh phải, nền xanh lá) */
+.message.admin {
+  align-self: flex-end;
+  background-color: #4CAF50;
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+/* Ô nhập tin nhắn */
+.input {
+  display: flex;
+  padding: 10px;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.input button {
+  margin-left: 8px;
+  padding: 8px 16px;
+  background: #4486ff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
