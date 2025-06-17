@@ -20,6 +20,8 @@ const Product = () => {
     const [showDetail, setShowDetail] = useState(false);
     const [loadingDetail, setLoadingDetail] = useState(false);
     const [errorDetail, setErrorDetail] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage] = useState(5);
 
     // Fetch products on component mount
     useEffect(() => {
@@ -156,6 +158,17 @@ const Product = () => {
             alert('Không thể cập nhật sản phẩm: ' + (err.message || 'Lỗi không xác định'));
             console.error('Error updating product:', err);
         }
+    };
+
+    // Add pagination calculations
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+    const totalPages = Math.ceil(products.length / productsPerPage);
+
+    // Add pagination handlers
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     if (loading) return <div className="loading">Đang tải...</div>;
@@ -351,7 +364,7 @@ const Product = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map(product => (
+                        {currentProducts.map(product => (
                             <tr key={product._id} onClick={() => handleShowDetail(product._id)} style={{cursor: 'pointer'}}>
                                 <td>{product._id}</td>
                                 <td>{product.name ? product.name : 'Không có tên'}</td>
@@ -393,6 +406,33 @@ const Product = () => {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Add pagination controls */}
+            <div className="pagination">
+                <button 
+                    className="btn btn-pagination"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Trước
+                </button>
+                {[...Array(totalPages)].map((_, index) => (
+                    <button
+                        key={index + 1}
+                        className={`btn btn-pagination ${currentPage === index + 1 ? 'active' : ''}`}
+                        onClick={() => handlePageChange(index + 1)}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+                <button 
+                    className="btn btn-pagination"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Sau
+                </button>
             </div>
         </div>
     );

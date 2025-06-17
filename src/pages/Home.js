@@ -5,6 +5,7 @@ import Product from './Product';
 import Order from './Order';
 import Post from './Post';
 import '../styles/Home.css';
+import Voucher from './voucher';
 
 const Home = () => {
   const [tab, setTab] = useState('dashboard');
@@ -18,6 +19,7 @@ const Home = () => {
           <li className={tab==='products' ? 'active' : ''} onClick={()=>setTab('products')}>Quản lý sản phẩm</li>
           <li className={tab==='orders' ? 'active' : ''} onClick={()=>setTab('orders')}>Quản lý đơn hàng</li>
           <li className={tab==='post' ? 'active' : ''} onClick={()=>setTab('post')}>Quản lý bài viết</li>
+          <li className={tab==='voucher' ? 'active' : ''} onClick={()=>setTab('voucher')}>Quản lý voucher</li>
         </ul>
       </aside>
       <main className="main-content">
@@ -26,6 +28,7 @@ const Home = () => {
         {tab === 'products' && <Product />}
         {tab === 'orders' && <Order />}
         {tab === 'post' && <Post />}
+        {tab === 'voucher' && <Voucher />}
       </main>
     </div>
   );
