@@ -1,9 +1,6 @@
-// API Configuration
 const API_BASE_URL = 'http://localhost:3001/api';
 
-// API Endpoints
 export const API_ENDPOINTS = {
-    // Auth endpoints
     AUTH: {
         LOGIN: `${API_BASE_URL}/login`,
         LOGOUT: `${API_BASE_URL}/logout`,
@@ -11,12 +8,10 @@ export const API_ENDPOINTS = {
         CHANGE_PASSWORD: `${API_BASE_URL}/change-password`,
         RESET_PASSWORD: `${API_BASE_URL}/reset-password`,
     },
-    // User endpoints
     USERS: {
         LIST: `${API_BASE_URL}/users`,
         DELETE: (id) => `${API_BASE_URL}/users/${id}`,
     },
-    // Product endpoints
     PRODUCTS: {
         LIST: `${API_BASE_URL}/products`,
         DETAIL: (id) => `${API_BASE_URL}/products/${id}`,
@@ -24,7 +19,6 @@ export const API_ENDPOINTS = {
         UPDATE: (id) => `${API_BASE_URL}/products/${id}`,
         DELETE: (id) => `${API_BASE_URL}/products/${id}`,
     },
-    // Post endpoints
     POSTS: {
         LIST: `${API_BASE_URL}/posts`,
         DETAIL: (id) => `${API_BASE_URL}/posts/${id}`,
@@ -32,289 +26,215 @@ export const API_ENDPOINTS = {
         UPDATE: (id) => `${API_BASE_URL}/posts/${id}`,
         DELETE: (id) => `${API_BASE_URL}/posts/${id}`,
     },
-    // Notification endpoints
     NOTIFICATIONS: {
         ADD: `${API_BASE_URL}/notifications/add`,
         GET_BY_USER: (userId) => `${API_BASE_URL}/notifications/user/${userId}`,
         MARK_AS_READ: (id) => `${API_BASE_URL}/notifications/read/${id}`,
+    },
+    CHATS: {
+        CREATE: `${API_BASE_URL}/chats/create`,
+        SEND_MESSAGE: `${API_BASE_URL}/chats/message`,
+        GET_MESSAGES: (chatId) => `${API_BASE_URL}/chats/${chatId}`,
+        GET_USER_CHATS: (userId) => `${API_BASE_URL}/chats/user/${userId}`,
+        MARK_AS_READ: `${API_BASE_URL}/chats/read`,
     }
 };
 
-// API Headers
 export const getHeaders = (token = null) => {
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     };
-
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     return headers;
 };
 
-// API Response Handler
 export const handleResponse = async (response) => {
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Something went wrong');
     }
-    return response.json();
+    const result = await response.json();
+    return result?.data ?? result;
 };
 
-// Auth API Services
+// === AUTH ===
 export const authAPI = {
-    // Login
     login: async (credentials) => {
-        const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(credentials)
+        const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(credentials)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Logout
     logout: async () => {
-        const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-            method: 'POST',
-            headers: getHeaders()
+        const res = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
+            method: 'POST', headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get Profile
     getProfile: async () => {
-        const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
+        const res = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Update Profile
-    updateProfile: async (profileData) => {
-        const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(profileData)
+    updateProfile: async (data) => {
+        const res = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Change Password
-    changePassword: async (passwordData) => {
-        const response = await fetch(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(passwordData)
+    changePassword: async (data) => {
+        const res = await fetch(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Reset Password
     resetPassword: async (email) => {
-        const response = await fetch(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify({ email })
+        const res = await fetch(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify({ email })
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
-// User API Services
+// === USERS ===
 export const userAPI = {
-    // Get all users
     getAllUsers: async () => {
-        const response = await fetch(API_ENDPOINTS.USERS.LIST, {
+        const res = await fetch(API_ENDPOINTS.USERS.LIST, {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Delete user
     deleteUser: async (id) => {
-        const response = await fetch(API_ENDPOINTS.USERS.DELETE(id), {
-            method: 'DELETE',
-            headers: getHeaders()
+        const res = await fetch(API_ENDPOINTS.USERS.DELETE(id), {
+            method: 'DELETE', headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
-// Product API Services
+// === PRODUCTS ===
 export const productAPI = {
-    // Get all products
     getAllProducts: async () => {
-        const response = await fetch(API_ENDPOINTS.PRODUCTS.LIST, {
+        const res = await fetch(API_ENDPOINTS.PRODUCTS.LIST, {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get product by ID
     getProductById: async (id) => {
-        const response = await fetch(API_ENDPOINTS.PRODUCTS.DETAIL(id), {
+        const res = await fetch(API_ENDPOINTS.PRODUCTS.DETAIL(id), {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Create new product
-    createProduct: async (productData) => {
-        const response = await fetch(API_ENDPOINTS.PRODUCTS.CREATE, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(productData)
+    createProduct: async (data) => {
+        const res = await fetch(API_ENDPOINTS.PRODUCTS.CREATE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Update product
-    updateProduct: async (id, productData) => {
-        const response = await fetch(API_ENDPOINTS.PRODUCTS.UPDATE(id), {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(productData)
+    updateProduct: async (id, data) => {
+        const res = await fetch(API_ENDPOINTS.PRODUCTS.UPDATE(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Delete product
     deleteProduct: async (id) => {
-        const response = await fetch(API_ENDPOINTS.PRODUCTS.DELETE(id), {
-            method: 'DELETE',
-            headers: getHeaders()
+        const res = await fetch(API_ENDPOINTS.PRODUCTS.DELETE(id), {
+            method: 'DELETE', headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
-// Post API Services
+// === POSTS ===
 export const postAPI = {
-    // Get all posts
     getAllPosts: async () => {
-        const response = await fetch(API_ENDPOINTS.POSTS.LIST, {
+        const res = await fetch(API_ENDPOINTS.POSTS.LIST, {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get post by ID
     getPostById: async (id) => {
-        const response = await fetch(API_ENDPOINTS.POSTS.DETAIL(id), {
+        const res = await fetch(API_ENDPOINTS.POSTS.DETAIL(id), {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Create new post
-    createPost: async (postData) => {
-        const response = await fetch(API_ENDPOINTS.POSTS.CREATE, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(postData)
+    createPost: async (data) => {
+        const res = await fetch(API_ENDPOINTS.POSTS.CREATE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Update post
-    updatePost: async (id, postData) => {
-        const response = await fetch(API_ENDPOINTS.POSTS.UPDATE(id), {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(postData)
+    updatePost: async (id, data) => {
+        const res = await fetch(API_ENDPOINTS.POSTS.UPDATE(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Delete post
     deletePost: async (id) => {
-        const response = await fetch(API_ENDPOINTS.POSTS.DELETE(id), {
-            method: 'DELETE',
-            headers: getHeaders()
+        const res = await fetch(API_ENDPOINTS.POSTS.DELETE(id), {
+            method: 'DELETE', headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
-// Chat API Services
+// === CHATS ===
 export const chatAPI = {
-    // Create new chat
-    createChat: async (chatData) => {
-        const response = await fetch(API_ENDPOINTS.CHATS.CREATE, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(chatData)
+    createChat: async (data) => {
+        const res = await fetch(API_ENDPOINTS.CHATS.CREATE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Send message
-    sendMessage: async (messageData) => {
-        const response = await fetch(API_ENDPOINTS.CHATS.SEND_MESSAGE, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(messageData)
+    sendMessage: async (data) => {
+        const res = await fetch(API_ENDPOINTS.CHATS.SEND_MESSAGE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get messages for a chat
     getMessages: async (chatId) => {
-        const response = await fetch(API_ENDPOINTS.CHATS.GET_MESSAGES(chatId), {
+        const res = await fetch(API_ENDPOINTS.CHATS.GET_MESSAGES(chatId), {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get all chats for a user
     getUserChats: async (userId) => {
-        const response = await fetch(API_ENDPOINTS.CHATS.GET_USER_CHATS(userId), {
+        const res = await fetch(API_ENDPOINTS.CHATS.GET_USER_CHATS(userId), {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Mark messages as read
-    markAsRead: async (readData) => {
-        const response = await fetch(API_ENDPOINTS.CHATS.MARK_AS_READ, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(readData)
+    markAsRead: async (data) => {
+        const res = await fetch(API_ENDPOINTS.CHATS.MARK_AS_READ, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
-// Notification API Services
+// === NOTIFICATIONS ===
 export const notificationAPI = {
-    // Add notification
-    addNotification: async (notificationData) => {
-        const response = await fetch(API_ENDPOINTS.NOTIFICATIONS.ADD, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(notificationData)
+    addNotification: async (data) => {
+        const res = await fetch(API_ENDPOINTS.NOTIFICATIONS.ADD, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Get notifications by user
     getUserNotifications: async (userId) => {
-        const response = await fetch(API_ENDPOINTS.NOTIFICATIONS.GET_BY_USER(userId), {
+        const res = await fetch(API_ENDPOINTS.NOTIFICATIONS.GET_BY_USER(userId), {
             headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     },
-
-    // Mark notification as read
-    markAsRead: async (notificationId) => {
-        const response = await fetch(API_ENDPOINTS.NOTIFICATIONS.MARK_AS_READ(notificationId), {
-            method: 'PUT',
-            headers: getHeaders()
+    markAsRead: async (id) => {
+        const res = await fetch(API_ENDPOINTS.NOTIFICATIONS.MARK_AS_READ(id), {
+            method: 'PUT', headers: getHeaders()
         });
-        return handleResponse(response);
+        return handleResponse(res);
     }
 };
 
@@ -331,4 +251,4 @@ const apiConfig = {
     notificationAPI
 };
 
-export default apiConfig; 
+export default apiConfig;

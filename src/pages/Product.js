@@ -68,8 +68,8 @@ const Product = () => {
                 stock: Number(newProduct.stock)
             };
 
-            const response = await productAPI.createProduct(productData);
-            setProducts([...products, response]);
+            await productAPI.createProduct(productData);
+            fetchProducts();
             setShowAddForm(false);
             setNewProduct({
                 name: '',
@@ -141,9 +141,12 @@ const Product = () => {
                 price: Number(newProduct.price),
                 stock: Number(newProduct.stock)
             };
-
-            const updatedProduct = await productAPI.updateProduct(editingProduct._id, productData);
-            setProducts(products.map(p => p._id === editingProduct._id ? updatedProduct : p));
+    
+            await productAPI.updateProduct(editingProduct._id, productData);
+    
+            // ✅ Gọi lại API để load lại danh sách sản phẩm
+            await fetchProducts();
+    
             setShowEditForm(false);
             setEditingProduct(null);
             setNewProduct({
@@ -159,6 +162,7 @@ const Product = () => {
             console.error('Error updating product:', err);
         }
     };
+    
 
     // Add pagination calculations
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -178,8 +182,8 @@ const Product = () => {
         <div className="product-container">
             <div className="product-header">
                 <h2>Quản lý sản phẩm</h2>
-                <button 
-                    className="btn btn-add" 
+                <button
+                    className="btn btn-add"
                     onClick={() => setShowAddForm(true)}
                 >
                     Thêm
@@ -242,8 +246,8 @@ const Product = () => {
                         </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Lưu</button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="btn btn-cancel"
                                 onClick={() => setShowAddForm(false)}
                             >
@@ -310,8 +314,8 @@ const Product = () => {
                         </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Cập nhật</button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="btn btn-cancel"
                                 onClick={() => setShowEditForm(false)}
                             >
@@ -337,7 +341,7 @@ const Product = () => {
                                 <img
                                     src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
                                     alt={selectedProduct.name || 'No name'}
-                                    style={{width: 120, height: 120, objectFit: 'cover', borderRadius: 8, margin: '0 auto 1rem'}}
+                                    style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, margin: '0 auto 1rem' }}
                                 />
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
@@ -365,7 +369,7 @@ const Product = () => {
                     </thead>
                     <tbody>
                         {currentProducts.map(product => (
-                            <tr key={product._id} onClick={() => handleShowDetail(product._id)} style={{cursor: 'pointer'}}>
+                            <tr key={product._id} onClick={() => handleShowDetail(product._id)} style={{ cursor: 'pointer' }}>
                                 <td>{product._id}</td>
                                 <td>{product.name ? product.name : 'Không có tên'}</td>
                                 <td>
@@ -410,7 +414,7 @@ const Product = () => {
 
             {/* Add pagination controls */}
             <div className="pagination">
-                <button 
+                <button
                     className="btn btn-pagination"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -426,7 +430,7 @@ const Product = () => {
                         {index + 1}
                     </button>
                 ))}
-                <button 
+                <button
                     className="btn btn-pagination"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}

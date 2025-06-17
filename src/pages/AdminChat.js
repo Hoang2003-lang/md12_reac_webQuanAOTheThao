@@ -15,12 +15,11 @@ const AdminChat = () => {
 
   const adminId = '683e9c91e2aa5ca0fbfb1030'; // ID của admin
 
-  // Kết nối socket khi component mount
   useEffect(() => {
     socketRef.current = io('http://localhost:3001');
 
     socketRef.current.on('connect', () => {
-      console.log('Kết nối socket thành công');
+      console.log('🔌 Kết nối socket thành công');
     });
 
     socketRef.current.on('receiveMessage', (msg) => {
@@ -34,12 +33,10 @@ const AdminChat = () => {
     };
   }, []);
 
-  // Load danh sách chat
   useEffect(() => {
     axios.get('http://localhost:3001/api/chats')
       .then(res => {
         const chats = res.data.data;
-
         const filteredChats = chats
           .filter(chat => chat.participants.includes(adminId))
           .map(chat => {
@@ -53,10 +50,9 @@ const AdminChat = () => {
 
         setChatList(filteredChats);
       })
-      .catch(err => console.error('Lỗi load chat:', err));
+      .catch(err => console.error('❌ Lỗi load danh sách chat:', err));
   }, []);
 
-  // Load lịch sử tin nhắn khi chọn chat
   useEffect(() => {
     if (!selectedChat) return;
 
@@ -66,15 +62,13 @@ const AdminChat = () => {
       .then(res => {
         setMessages(res.data.data.messages || []);
       })
-      .catch(err => console.error('Lỗi lấy tin nhắn:', err));
+      .catch(err => console.error('❌ Lỗi lấy tin nhắn:', err));
   }, [selectedChat]);
 
-  // Cuộn xuống tin nhắn mới
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Gửi tin nhắn
   const sendMessage = async () => {
     if (!message.trim() || !selectedChat?.chatId) {
       alert('Thiếu nội dung hoặc không có chatId');
@@ -88,14 +82,23 @@ const AdminChat = () => {
     };
 
     try {
-      const res = await axios.post('http://localhost:3001/api/chats/message', msgData);
-      const sentMsg = res.data.data;
+      await axios.post('http://localhost:3001/api/chats/message', msgData);
 
-      socketRef.current.emit('sendMessage', sentMsg); // Gửi qua socket
+      const sentMsg = {
+        sender: adminId,
+        content: message,
+        type: 'text',
+        timestamp: new Date(),
+        isRead: false,
+        chatId: selectedChat.chatId
+      };
+
+      socketRef.current.emit('sendMessage', sentMsg);
+
       setMessages(prev => [...prev, sentMsg]);
       setMessage('');
     } catch (err) {
-      console.error('Gửi tin nhắn lỗi:', err);
+      console.error('❌ Gửi tin nhắn lỗi:', err);
       alert('Không gửi được tin nhắn!');
     }
   };
@@ -112,7 +115,7 @@ const AdminChat = () => {
             <h4>Người dùng:</h4>
             {chatList.map((chat) => (
               <div
-                key={chat.chatId || chat.userId}
+                key={chat.chatId}
                 className={`user-item ${selectedChat?.chatId === chat.chatId ? 'selected' : ''}`}
                 onClick={() => setSelectedChat(chat)}
               >
@@ -125,16 +128,23 @@ const AdminChat = () => {
           {selectedChat && (
             <div className="chat-content">
               <div className="messages">
-                {messages.map((msg) => (
+                {messages.map((msg, index) => (
                   <div
-                    key={msg._id || `${msg.sender}-${Math.random()}`}
+                    key={msg._id || `${msg.sender}-${index}`}
                     className={`message ${msg.sender === adminId ? 'admin' : 'user'}`}
                   >
-                    {msg.content}
+                    <div className="message-content">{msg.content}</div>
+                    <div className="message-time">
+                      {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
               </div>
+
               <div className="input">
                 <input
                   type="text"

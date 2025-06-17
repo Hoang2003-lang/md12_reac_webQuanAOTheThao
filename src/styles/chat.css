@@ -133,3 +133,22 @@
   cursor: pointer;
   font-size: 14px;
 }
+/* Thời gian gửi tin nhắn */
+.message-time {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #000000;
+  text-align: right;
+  opacity: 0.8;
+}
+
+/* Tùy chỉnh cho admin */
+.message.admin .message-time {
+  text-align: right;
+}
+
+/* Tùy chỉnh cho user */
+.message.user .message-time {
+  text-align: left;
+}
