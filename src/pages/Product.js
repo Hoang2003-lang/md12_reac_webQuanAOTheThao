@@ -14,7 +14,8 @@ const Product = () => {
         price: '',
         stock: '',
         description: '',
-        image: ''
+        image: '',
+        size: ['S', 'M', 'L', 'XL']
     });
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -52,12 +53,35 @@ const Product = () => {
         }));
     };
 
+    // Handle size change
+    const handleSizeChange = (e) => {
+        const { value, checked } = e.target;
+        setNewProduct(prev => {
+            let newSizes = [...prev.size];
+            if (checked) {
+                if (!newSizes.includes(value)) {
+                    newSizes.push(value);
+                }
+            } else {
+                newSizes = newSizes.filter(size => size !== value);
+            }
+            return {
+                ...prev,
+                size: newSizes
+            };
+        });
+    };
+
     // Handle form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validate
         if (!newProduct.name.trim() || !newProduct.image.trim()) {
             alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
+            return;
+        }
+        if (newProduct.size.length === 0) {
+            alert('Vui lòng chọn ít nhất một size!');
             return;
         }
         try {
@@ -76,7 +100,8 @@ const Product = () => {
                 price: '',
                 stock: '',
                 description: '',
-                image: ''
+                image: '',
+                size: ['S', 'M', 'L', 'XL']
             });
             alert('Thêm sản phẩm thành công!');
         } catch (err) {
@@ -105,8 +130,9 @@ const Product = () => {
         setLoadingDetail(true);
         setErrorDetail(null);
         try {
-            const detail = await productAPI.getProductById(id);
-            setSelectedProduct(detail);
+            const { product } = await productAPI.getProductById(id); // Lấy đúng product object
+            setSelectedProduct(product); // Gán đúng dữ liệu vào state
+
         } catch (err) {
             setErrorDetail('Không thể tải chi tiết sản phẩm');
             setSelectedProduct(null);
@@ -123,7 +149,8 @@ const Product = () => {
             price: product.price || '',
             stock: product.stock || '',
             description: product.description || '',
-            image: product.image || ''
+            image: product.image || '',
+            size: product.size || ['S', 'M', 'L', 'XL']
         });
         setShowEditForm(true);
     };
@@ -135,18 +162,22 @@ const Product = () => {
             alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
             return;
         }
+        if (newProduct.size.length === 0) {
+            alert('Vui lòng chọn ít nhất một size!');
+            return;
+        }
         try {
             const productData = {
                 ...newProduct,
                 price: Number(newProduct.price),
                 stock: Number(newProduct.stock)
             };
-    
+
             await productAPI.updateProduct(editingProduct._id, productData);
-    
+
             // ✅ Gọi lại API để load lại danh sách sản phẩm
             await fetchProducts();
-    
+
             setShowEditForm(false);
             setEditingProduct(null);
             setNewProduct({
@@ -154,7 +185,8 @@ const Product = () => {
                 price: '',
                 stock: '',
                 description: '',
-                image: ''
+                image: '',
+                size: ['S', 'M', 'L', 'XL']
             });
             alert('Cập nhật sản phẩm thành công!');
         } catch (err) {
@@ -162,7 +194,6 @@ const Product = () => {
             console.error('Error updating product:', err);
         }
     };
-    
 
     // Add pagination calculations
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -244,6 +275,22 @@ const Product = () => {
                                 required
                             />
                         </div>
+                        <div className="form-group">
+                            <label>Size có sẵn:</label>
+                            <div className="size-checkboxes">
+                                {['S', 'M', 'L', 'XL'].map(size => (
+                                    <label key={size} className="size-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            value={size}
+                                            checked={newProduct.size.includes(size)}
+                                            onChange={handleSizeChange}
+                                        />
+                                        <span>{size}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Lưu</button>
                             <button
@@ -312,6 +359,22 @@ const Product = () => {
                                 required
                             />
                         </div>
+                        <div className="form-group">
+                            <label>Size có sẵn:</label>
+                            <div className="size-checkboxes">
+                                {['S', 'M', 'L', 'XL'].map(size => (
+                                    <label key={size} className="size-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            value={size}
+                                            checked={newProduct.size.includes(size)}
+                                            onChange={handleSizeChange}
+                                        />
+                                        <span>{size}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Cập nhật</button>
                             <button
@@ -346,6 +409,7 @@ const Product = () => {
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
                                 <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
+                                <p><b>Size có sẵn:</b> {selectedProduct.size && selectedProduct.size.length > 0 ? selectedProduct.size.join(', ') : 'N/A'}</p>
                                 <p><b>Mô tả:</b> {selectedProduct.description || 'Không có mô tả'}</p>
                                 <button className="btn btn-cancel" onClick={() => setShowDetail(false)}>Đóng</button>
                             </>
@@ -363,6 +427,7 @@ const Product = () => {
                             <th>Giá</th>
                             <th>Hình ảnh</th>
                             <th>Tồn kho</th>
+                            <th>Size</th>
                             <th>Mô tả</th>
                             <th>Thao tác</th>
                         </tr>
@@ -386,6 +451,7 @@ const Product = () => {
                                     />
                                 </td>
                                 <td>{product.stock ?? 'N/A'}</td>
+                                <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
                                 <td className="description-cell">{product.description || 'Không có mô tả'}</td>
                                 <td>
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
