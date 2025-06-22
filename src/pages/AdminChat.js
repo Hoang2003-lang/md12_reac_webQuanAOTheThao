@@ -15,6 +15,7 @@ const AdminChat = () => {
 
   const adminId = '683e9c91e2aa5ca0fbfb1030'; // ID của admin
 
+  // Kết nối socket
   useEffect(() => {
     socketRef.current = io('http://localhost:3001');
 
@@ -33,17 +34,21 @@ const AdminChat = () => {
     };
   }, []);
 
+  // Lấy danh sách chat
   useEffect(() => {
     axios.get('http://localhost:3001/api/chats')
       .then(res => {
         const chats = res.data.data;
+
         const filteredChats = chats
-          .filter(chat => chat.participants.includes(adminId))
+          .filter(chat => chat.participants.some(p => p._id === adminId))
           .map(chat => {
-            const otherUserId = chat.participants.find(p => p !== adminId);
+            const otherUser = chat.participants.find(p => p._id !== adminId);
             return {
               chatId: chat._id,
-              userId: otherUserId,
+              userId: otherUser?._id,
+              userName: otherUser?.name,
+              userAvatar: otherUser?.avatar,
               lastMessage: chat.lastMessage?.content || 'Chưa có tin nhắn',
             };
           });
@@ -53,6 +58,7 @@ const AdminChat = () => {
       .catch(err => console.error('❌ Lỗi load danh sách chat:', err));
   }, []);
 
+  // Lấy tin nhắn khi chọn chat
   useEffect(() => {
     if (!selectedChat) return;
 
@@ -65,10 +71,12 @@ const AdminChat = () => {
       .catch(err => console.error('❌ Lỗi lấy tin nhắn:', err));
   }, [selectedChat]);
 
+  // Cuộn xuống cuối khi có tin nhắn mới
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Gửi tin nhắn
   const sendMessage = async () => {
     if (!message.trim() || !selectedChat?.chatId) {
       alert('Thiếu nội dung hoặc không có chatId');
@@ -119,8 +127,11 @@ const AdminChat = () => {
                 className={`user-item ${selectedChat?.chatId === chat.chatId ? 'selected' : ''}`}
                 onClick={() => setSelectedChat(chat)}
               >
-                🧑 ID: {chat.userId.slice(-5)} <br />
-                <small>{chat.lastMessage}</small>
+                <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
+                <div>
+                  <strong>{chat.userName}</strong> <br />
+                  <small>{chat.lastMessage}</small>
+                </div>
               </div>
             ))}
           </div>
