@@ -13,19 +13,72 @@ const AdminChat = () => {
   const currentChatIdRef = useRef(null);
   const socketRef = useRef(null);
 
+
+
   const adminId = '683e9c91e2aa5ca0fbfb1030'; // ID của admin
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:3001');
+    socketRef.current = io('http://192.168.10.105:3001');
 
     socketRef.current.on('connect', () => {
       console.log('🔌 Kết nối socket thành công');
+
     });
 
-    socketRef.current.on('receiveMessage', (msg) => {
-      if (msg.chatId === currentChatIdRef.current) {
-        setMessages(prev => [...prev, msg]);
-      }
+
+    socketRef.current.on('new message', (msg) => {
+      // if (msg.senderId === adminId) return;
+      // if (msg.chatId === currentChatIdRef.current) {
+      //   setMessages(prev => [...prev, msg]);
+      // }
+
+    //   setMessages(prev => {
+    //     // const exists = prev.some(m => m._id === msg._id);
+    //     // return exists ? prev : [...prev, msg];
+    //     const exists = prev.some(m =>
+    //   m.content === msg.content &&
+    //   m.senderId === msg.senderId &&
+    //   m.chatId === msg.chatId &&
+    //   new Date(m.timestamp).getTime() === new Date(msg.timestamp).getTime()
+    // );
+
+    // // Nếu đã có 1 tin tương tự mà là local (tức vừa gửi xong), thì bỏ qua socket để tránh lặp
+    // const isDuplicateLocal = prev.some(m =>
+    //   m._local &&
+    //   m.content === msg.content &&
+    //   m.senderId === msg.senderId &&
+    //   m.chatId === msg.chatId
+    // );
+
+    // if (exists || isDuplicateLocal) return prev;
+
+    // return [...prev, msg];
+    //   });
+
+      setMessages(prev => {
+    // Nếu đã tồn tại bản giống hệt (có _id), bỏ qua
+    const exists = prev.some(m => m._id === msg._id);
+
+    // Nếu đã có bản local giống nội dung và sender → thay bằng bản có _id
+    const localIndex = prev.findIndex(m =>
+      m._local &&
+      m.content === msg.content &&
+      m.senderId === msg.senderId &&
+      m.chatId === msg.chatId
+    );
+
+    if (exists) return prev;
+
+    if (localIndex !== -1) {
+      const newMessages = [...prev];
+      newMessages[localIndex] = { ...msg, _local: false };
+      return newMessages;
+    }
+
+    return [...prev, msg];
+  });
+
+      
     });
 
     return () => {
@@ -34,7 +87,7 @@ const AdminChat = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/api/chats')
+    axios.get('http://192.168.10.105:3001/api/chats')
       .then(res => {
         const chats = res.data.data;
         const filteredChats = chats
@@ -58,9 +111,22 @@ const AdminChat = () => {
 
     currentChatIdRef.current = selectedChat.chatId;
 
-    axios.get(`http://localhost:3001/api/chats/${selectedChat.chatId}`)
+
+    currentChatIdRef.current = selectedChat.chatId;
+    socketRef.current.emit('join chat', selectedChat.chatId);
+    console.log('✅ Admin joined room:', selectedChat.chatId);
+
+    axios.get(`http://192.168.10.105:3001/api/chats/${selectedChat.chatId}`)
       .then(res => {
-        setMessages(res.data.data.messages || []);
+        // setMessages(res.data.data.messages || []);
+        const rawMessages = res.data.data.messages || [];
+
+    const normalized = rawMessages.map(msg => ({
+      ...msg,
+      senderId: msg.senderId || msg.sender?._id || msg.sender || '', // THÊM DÒNG NÀY
+    }));
+
+    setMessages(normalized);
       })
       .catch(err => console.error('❌ Lỗi lấy tin nhắn:', err));
   }, [selectedChat]);
@@ -80,22 +146,25 @@ const AdminChat = () => {
       senderId: adminId,
       content: message
     };
+    // const sentMsg = {
+    //     senderId: adminId,
+    //     content: message,
+    //     // type: 'text',
+    //     timestamp: new Date(),
+    //     isRead: false,
+    //     chatId: selectedChat.chatId,
+    //     _local: true,
+    //   };
 
     try {
-      await axios.post('http://localhost:3001/api/chats/message', msgData);
+      // await axios.post('http://192.168.10.102:3001/api/chats/message', msgData);
 
-      const sentMsg = {
-        sender: adminId,
-        content: message,
-        type: 'text',
-        timestamp: new Date(),
-        isRead: false,
-        chatId: selectedChat.chatId
-      };
+      
+      // setMessages(prev => [...prev, sentMsg]);
+      socketRef.current.emit('send message', msgData);
 
-      socketRef.current.emit('sendMessage', sentMsg);
 
-      setMessages(prev => [...prev, sentMsg]);
+      
       setMessage('');
     } catch (err) {
       console.error('❌ Gửi tin nhắn lỗi:', err);
@@ -130,8 +199,8 @@ const AdminChat = () => {
               <div className="messages">
                 {messages.map((msg, index) => (
                   <div
-                    key={msg._id || `${msg.sender}-${index}`}
-                    className={`message ${msg.sender === adminId ? 'admin' : 'user'}`}
+                    key={msg._id || `${msg.senderId}-${index}`}
+                    className={`message ${msg.senderId === adminId ? 'admin' : 'user'}`}
                   >
                     <div className="message-content">{msg.content}</div>
                     <div className="message-time">
