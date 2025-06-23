@@ -26,6 +26,15 @@ export const API_ENDPOINTS = {
         UPDATE: (id) => `${API_BASE_URL}/posts/${id}`,
         DELETE: (id) => `${API_BASE_URL}/posts/${id}`,
     },
+    ORDERS: {
+        LIST: `${API_BASE_URL}/orders`,
+        DETAIL: (id) => `${API_BASE_URL}/orders/${id}`,
+        CREATE: `${API_BASE_URL}/orders/add`,
+        UPDATE_STATUS: (id) => `${API_BASE_URL}/orders/${id}/status`,
+        DELETE: (id) => `${API_BASE_URL}/orders/${id}`,
+        GET_BY_USER: (userId) => `${API_BASE_URL}/orders/user/${userId}`,
+        STATS: `${API_BASE_URL}/orders/stats`,
+    },
     NOTIFICATIONS: {
         ADD: `${API_BASE_URL}/notifications/add`,
         GET_BY_USER: (userId) => `${API_BASE_URL}/notifications/user/${userId}`,
@@ -182,6 +191,52 @@ export const postAPI = {
     }
 };
 
+// === ORDERS ===
+export const orderAPI = {
+    getAllOrders: async () => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.LIST, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getOrderById: async (id) => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.DETAIL(id), {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    createOrder: async (data) => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.CREATE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
+        });
+        return handleResponse(res);
+    },
+    updateOrderStatus: async (id, status) => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.UPDATE_STATUS(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify({ status })
+        });
+        return handleResponse(res);
+    },
+    deleteOrder: async (id) => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.DELETE(id), {
+            method: 'DELETE', headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getOrdersByUserId: async (userId) => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.GET_BY_USER(userId), {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getOrderStats: async () => {
+        const res = await fetch(API_ENDPOINTS.ORDERS.STATS, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    }
+};
+
 // === CHATS ===
 export const chatAPI = {
     createChat: async (data) => {
@@ -247,6 +302,7 @@ const apiConfig = {
     userAPI,
     productAPI,
     postAPI,
+    orderAPI,
     chatAPI,
     notificationAPI
 };
