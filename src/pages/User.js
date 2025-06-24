@@ -19,7 +19,7 @@ const User = () => {
           throw new Error('No authentication token found');
         }
 
-        const response = await axios.get('http://192.168.10.105:3001/api/users', {
+        const response = await axios.get('http://localhost:3001/api/users', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -43,7 +43,7 @@ const User = () => {
   const handleConfirmDelete = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://192.168.10.105:3001/api/users/${userToDelete._id}`, {
+      await axios.delete(`http://localhost:3001/api/users/${userToDelete._id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

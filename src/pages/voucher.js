@@ -37,7 +37,7 @@ const Voucher = () => {
     const fetchVouchers = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://192.168.10.104:3001/api/vouchers');
+            const response = await axios.get('http://localhost:3001/api/vouchers');
             const vouchersData = response.data.data || [];
             setVouchers(vouchersData);
             setError(null);
@@ -73,7 +73,7 @@ const Voucher = () => {
                 usage_limit: Number(newVoucher.usage_limit)
             };
 
-            const response = await axios.post('http://192.168.10.104:3001/api/vouchers/add', voucherData);
+            const response = await axios.post('http://localhost:3001/api/vouchers/add', voucherData);
             const newVoucherData = response.data.data;
             setVouchers(prevVouchers => [...prevVouchers, newVoucherData]);
             setShowAddForm(false);
@@ -99,7 +99,7 @@ const Voucher = () => {
     const handleDelete = async (code) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa voucher này?')) {
             try {
-                await axios.delete(`http://192.168.10.104:3001/api/vouchers/${code}`);
+                await axios.delete(`http://localhost:3001/api/vouchers/${code}`);
                 setVouchers(vouchers.filter(v => v.code !== code));
                 alert('Xóa voucher thành công!');
             } catch (err) {
@@ -115,7 +115,7 @@ const Voucher = () => {
         setLoadingDetail(true);
         setErrorDetail(null);
         try {
-            const response = await axios.get(`http://192.168.10.104:3001/api/vouchers/${code}`);
+            const response = await axios.get(`http://localhost:3001/api/vouchers/${code}`);
             const voucherDetail = response.data.data;
             setSelectedVoucher(voucherDetail);
         } catch (err) {
@@ -158,7 +158,7 @@ const Voucher = () => {
                 usage_limit: Number(newVoucher.usage_limit)
             };
 
-            const response = await axios.put(`http://192.168.10.104:3001/api/vouchers/${editingVoucher.code}`, voucherData);
+            const response = await axios.put(`http://localhost:3001/api/vouchers/${editingVoucher.code}`, voucherData);
             const updatedVoucherData = response.data.data;
             setVouchers(prevVouchers => 
                 prevVouchers.map(v => v.code === editingVoucher.code ? updatedVoucherData : v)
