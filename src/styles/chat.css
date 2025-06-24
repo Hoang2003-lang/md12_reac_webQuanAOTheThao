@@ -1,3 +1,4 @@
+/* KHUNG CHAT */
 .chat-box {
   position: fixed;
   bottom: 80px;
@@ -11,15 +12,16 @@
   overflow: hidden;
   z-index: 1000;
   font-family: 'Segoe UI', sans-serif;
-  }
-  
-  .chat-icon {
+}
+
+/* NÚT ICON MỞ CHAT */
+.chat-icon {
   position: fixed;
   bottom: 20px;
   right: 30px;
   width: 60px;
   height: 60px;
-  background: #4486ff; /* xanh dương hiện đại */
+  background: #4486ff;
   color: white;
   font-size: 24px;
   display: flex;
@@ -30,23 +32,23 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 1001;
-  }
-  
-  .chat-icon:hover {
+}
+
+.chat-icon:hover {
   transform: scale(1.1);
   background: #3a76e8;
-  }
-  
-  
-  .user-list {
+}
+
+/* DANH SÁCH NGƯỜI DÙNG */
+.user-list {
   width: 120px;
   border-right: 1px solid #ddd;
-  padding: 10px;
+  padding: 10px 6px;
   overflow-y: auto;
   background-color: #f9f9f9;
-  }
-  
-  .user-item {
+}
+
+.user-item {
   cursor: pointer;
   padding: 6px;
   margin-bottom: 6px;
@@ -54,32 +56,64 @@
   background-color: #fff;
   transition: background 0.2s;
   font-size: 12px;
-  }
-  
-  .user-item:hover,
-  .user-item.selected {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-item:hover,
+.user-item.selected {
   background-color: #e6f0ff;
   font-weight: 600;
-  }
-  
-  .chat-content {
+}
+
+.user-item .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 4px;
+}
+
+/* NỘI DUNG CHAT */
+.chat-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   background-color: #f0f2f5;
-  }
-  
-  .messages {
+}
+
+/* HEADER CHAT (tên + nút quay lại) */
+.chat-header {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header button {
+  background: none;
+  border: none;
+  color: #4486ff;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* KHUNG HIỂN THỊ TIN NHẮN */
+.messages {
   flex: 1;
   padding: 12px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  }
-  
-  /* Tin nhắn */
-  .message {
+}
+
+/* TIN NHẮN */
+.message {
   max-width: 70%;
   padding: 10px 14px;
   border-radius: 18px;
@@ -88,42 +122,59 @@
   font-size: 14px;
   position: relative;
   display: inline-block;
-  }
-  
-  /* Tin nhắn từ người dùng (canh trái, nền xám nhạt) */
-  .message.user {
+}
+
+/* USER: trái - xám */
+.message.user {
   align-self: flex-start;
   background-color: #e4e6eb;
   color: #000;
   border-top-left-radius: 4px;
-  }
-  
-  /* Tin nhắn từ admin (canh phải, nền xanh lá) */
-  .message.admin {
+}
+
+/* ADMIN: phải - xanh lá */
+.message.admin {
   align-self: flex-end;
   background-color: #4CAF50;
   color: #fff;
   border-top-right-radius: 4px;
-  }
-  
-  /* Ô nhập tin nhắn */
-  .input {
+}
+
+/* THỜI GIAN TIN NHẮN */
+.message-time {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #000000;
+  text-align: right;
+  opacity: 0.8;
+}
+
+.message.admin .message-time {
+  text-align: right;
+}
+.message.user .message-time {
+  text-align: left;
+}
+
+/* INPUT GỬI TIN NHẮN */
+.input {
   display: flex;
   padding: 10px;
   background-color: #fff;
   border-top: 1px solid #ddd;
-  }
-  
-  .input input {
+}
+
+.input input {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 20px;
   outline: none;
   font-size: 14px;
-  }
-  
-  .input button {
+}
+
+.input button {
   margin-left: 8px;
   padding: 8px 16px;
   background: #4486ff;
@@ -132,23 +183,4 @@
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
-  }
-  /* Thời gian gửi tin nhắn */
-  .message-time {
-    display: block;
-    margin-top: 4px;
-    font-size: 11px;
-    color: #000000;
-    text-align: right;
-    opacity: 0.8;
-  }
-  
-  /* Tùy chỉnh cho admin */
-  .message.admin .message-time {
-    text-align: right;
-  }
-  
-  /* Tùy chỉnh cho user */
-  .message.user .message-time {
-    text-align: left;
-  }
+}

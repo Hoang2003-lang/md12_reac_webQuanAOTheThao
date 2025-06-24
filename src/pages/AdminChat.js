@@ -10,24 +10,29 @@ const AdminChat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
+  const currentChatIdRef = useRef(null);
   const socketRef = useRef(null);
 
-  const adminId = '683e9c91e2aa5ca0fbfb1030'; // ID admin
+  const adminId = '683e9c91e2aa5ca0fbfb1030'; // ID của admin
 
   // Kết nối socket
   useEffect(() => {
     socketRef.current = io('http://localhost:3001');
 
-    socketRef.current.on('newMessage', (data) => {
-      if (data.chatId === selectedChat?.chatId) {
-        setMessages(prev => [...prev, data]);
+    socketRef.current.on('connect', () => {
+      console.log('🔌 Kết nối socket thành công');
+    });
+
+    socketRef.current.on('receiveMessage', (msg) => {
+      if (msg.chatId === currentChatIdRef.current) {
+        setMessages(prev => [...prev, msg]);
       }
     });
 
     return () => {
       socketRef.current.disconnect();
     };
-  }, [selectedChat]);
+  }, []);
 
   // Lấy danh sách chat
   useEffect(() => {
@@ -42,8 +47,8 @@ const AdminChat = () => {
             return {
               chatId: chat._id,
               userId: otherUser?._id,
-              userName: otherUser?.name || 'Người dùng',
-              userAvatar: otherUser?.avatar || '/default-avatar.png',
+              userName: otherUser?.name,
+              userAvatar: otherUser?.avatar,
               lastMessage: chat.lastMessage?.content || 'Chưa có tin nhắn',
             };
           });
@@ -57,9 +62,11 @@ const AdminChat = () => {
   useEffect(() => {
     if (!selectedChat) return;
 
+    currentChatIdRef.current = selectedChat.chatId;
+
     axios.get(`http://localhost:3001/api/chats/${selectedChat.chatId}`)
       .then(res => {
-        setMessages(Array.isArray(res.data.data) ? res.data.data : []);
+        setMessages(res.data.data.messages || []);
       })
       .catch(err => console.error('❌ Lỗi lấy tin nhắn:', err));
   }, [selectedChat]);
@@ -76,87 +83,124 @@ const AdminChat = () => {
       return;
     }
 
-    try {
-      const res = await axios.post('http://localhost:3001/api/chats/message', {
-        chatId: selectedChat.chatId,
-        senderId: adminId,
-        content: message,
-      });
+    const msgData = {
+      chatId: selectedChat.chatId,
+      senderId: adminId,
+      content: message
+    };
 
-      socketRef.current.emit('sendMessage', res.data.data);
-      setMessages(prev => [...prev, res.data.data]);
+    try {
+      await axios.post('http://localhost:3001/api/chats/message', msgData);
+
+      const sentMsg = {
+        sender: adminId,
+        content: message,
+        type: 'text',
+        timestamp: new Date(),
+        isRead: false,
+        chatId: selectedChat.chatId
+      };
+
+      socketRef.current.emit('sendMessage', sentMsg);
+
+      setMessages(prev => [...prev, sentMsg]);
       setMessage('');
-    } catch (error) {
-      console.error('❌ Lỗi gửi tin nhắn:', error);
+    } catch (err) {
+      console.error('❌ Gửi tin nhắn lỗi:', err);
+      alert('Không gửi được tin nhắn!');
     }
   };
 
   return (
     <>
-      {/* Nút chat icon tròn góc phải */}
-      {!showChat && (
-        <div className="chat-icon" onClick={() => setShowChat(true)}>
-          💬
-        </div>
-      )}
-
-      {/* Khung chat */}
+      <div className="chat-icon" onClick={() => setShowChat(!showChat)}>
+        💬
+      </div>
+  
       {showChat && (
-        <div className="chat-box">
-          <div className="chat-wrapper">
-            {/* Danh sách người dùng */}
-            <div className="user-list">
-              {chatList.map(chat => (
-                <div
-                  key={chat.chatId}
-                  className={`user-item ${selectedChat?.chatId === chat.chatId ? 'selected' : ''}`}
-                  onClick={() => setSelectedChat(chat)}
-                >
-                  <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
-                  <div>
-                    <strong>{chat.userName}</strong>
-                    <br />
-                    <small>{chat.lastMessage}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Tin nhắn + input */}
-            <div className="chat-content">
-              <div className="messages">
-                {Array.isArray(messages) && messages.map((msg, index) => (
+        <>
+          {!selectedChat ? (
+            <div className="chat-box">
+              <div className="user-list">
+                <h4>Người dùng:</h4>
+                {chatList.map((chat) => (
                   <div
-                    key={index}
-                    className={`message ${msg.senderId === adminId ? 'admin' : 'user'}`}
+                    key={chat.chatId}
+                    className="user-item"
+                    onClick={() => setSelectedChat(chat)}
                   >
-                    {msg.content}
-                    <div className="message-time">
-                      {msg.createdAt?.slice(11, 16)}
+                    <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
+                    <div>
+                      <strong>{chat.userName}</strong> <br />
+                      <small>{chat.lastMessage}</small>
                     </div>
                   </div>
                 ))}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Nhập tin nhắn */}
-              <div className="input">
-                <input
-                  type="text"
-                  placeholder="Nhập tin nhắn..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                />
-                <button onClick={sendMessage}>Gửi</button>
-                <button onClick={() => setShowChat(false)} style={{ marginLeft: 5 }}>Đóng</button>
               </div>
             </div>
-          </div>
-        </div>
+          ) : (
+            <div className="chat-box">
+              <div className="user-list">
+                <h4>Người dùng:</h4>
+                {chatList.map((chat) => (
+                  <div
+                    key={chat.chatId}
+                    className={`user-item ${selectedChat?.chatId === chat.chatId ? 'selected' : ''}`}
+                    onClick={() => setSelectedChat(chat)}
+                  >
+                    <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
+                    <div>
+                      <strong>{chat.userName}</strong> <br />
+                      <small>{chat.lastMessage}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+  
+              <div className="chat-content">
+                <div className="chat-header">
+                  <button onClick={() => setSelectedChat(null)}>⬅ Quay lại</button>
+                  <h4>{selectedChat.userName}</h4>
+                </div>
+  
+                <div className="messages">
+                  {messages.map((msg, index) => (
+                    <div
+                      key={msg._id || `${msg.sender}-${index}`}
+                      className={`message ${
+                        (typeof msg.sender === 'string' ? msg.sender : msg.sender?._id) === adminId
+                          ? 'admin'
+                          : 'user'
+                      }`}
+                    >
+                      <div className="message-content">{msg.content}</div>
+                      <div className="message-time">
+                        {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+  
+                <div className="input">
+                  <input
+                    type="text"
+                    placeholder="Nhập tin nhắn..."
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                  />
+                  <button onClick={sendMessage}>Gửi</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
-  );
+  );  
 };
 
 export default AdminChat;
