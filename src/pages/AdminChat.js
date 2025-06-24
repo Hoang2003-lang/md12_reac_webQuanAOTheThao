@@ -23,10 +23,10 @@ const AdminChat = () => {
       console.log('🔌 Kết nối socket thành công');
     });
 
-    socketRef.current.on('receiveMessage', (msg) => {
+    socketRef.current.on('new message', (msg) => {
       if (msg.chatId === currentChatIdRef.current) {
-        setMessages(prev => [...prev, msg]);
-      }
+        setMessages(prev => [...prev, msg.message]);
+      } 
     });
 
     return () => {
@@ -62,7 +62,11 @@ const AdminChat = () => {
   useEffect(() => {
     if (!selectedChat) return;
 
-    currentChatIdRef.current = selectedChat.chatId;
+    // currentChatIdRef.current = selectedChat.chatId;
+
+    const chatId = selectedChat.chatId;
+    currentChatIdRef.current = chatId;
+    socketRef.current.emit('join chat', chatId);
 
     axios.get(`http://localhost:3001/api/chats/${selectedChat.chatId}`)
       .then(res => {
@@ -90,10 +94,11 @@ const AdminChat = () => {
     };
 
     try {
-      await axios.post('http://localhost:3001/api/chats/message', msgData);
+      // await axios.post('http://localhost:3001/api/chats/message', msgData);
 
       const sentMsg = {
         sender: adminId,
+        senderId: adminId,
         content: message,
         type: 'text',
         timestamp: new Date(),
@@ -101,9 +106,9 @@ const AdminChat = () => {
         chatId: selectedChat.chatId
       };
 
-      socketRef.current.emit('sendMessage', sentMsg);
+      socketRef.current.emit('send message', msgData);
 
-      setMessages(prev => [...prev, sentMsg]);
+      // setMessages(prev => [...prev, sentMsg]);
       setMessage('');
     } catch (err) {
       console.error('❌ Gửi tin nhắn lỗi:', err);
@@ -116,7 +121,7 @@ const AdminChat = () => {
       <div className="chat-icon" onClick={() => setShowChat(!showChat)}>
         💬
       </div>
-  
+
       {showChat && (
         <>
           {!selectedChat ? (
@@ -156,22 +161,21 @@ const AdminChat = () => {
                   </div>
                 ))}
               </div>
-  
+
               <div className="chat-content">
                 <div className="chat-header">
                   <button onClick={() => setSelectedChat(null)}>⬅ Quay lại</button>
                   <h4>{selectedChat.userName}</h4>
                 </div>
-  
+
                 <div className="messages">
                   {messages.map((msg, index) => (
                     <div
                       key={msg._id || `${msg.sender}-${index}`}
-                      className={`message ${
-                        (typeof msg.sender === 'string' ? msg.sender : msg.sender?._id) === adminId
-                          ? 'admin'
-                          : 'user'
-                      }`}
+                      className={`message ${(typeof msg.sender === 'string' ? msg.sender : msg.sender?._id) === adminId
+                        ? 'admin'
+                        : 'user'
+                        }`}
                     >
                       <div className="message-content">{msg.content}</div>
                       <div className="message-time">
@@ -184,7 +188,7 @@ const AdminChat = () => {
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
-  
+
                 <div className="input">
                   <input
                     type="text"
@@ -200,7 +204,7 @@ const AdminChat = () => {
         </>
       )}
     </>
-  );  
+  );
 };
 
 export default AdminChat;
