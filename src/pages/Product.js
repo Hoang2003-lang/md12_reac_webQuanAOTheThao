@@ -15,7 +15,8 @@ const Product = () => {
         stock: '',
         description: '',
         image: '',
-        size: ['S', 'M', 'L', 'XL']
+        size: ['S', 'M', 'L', 'XL'],
+        colors: ['Đen', 'Trắng']
     });
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -72,6 +73,25 @@ const Product = () => {
         });
     };
 
+    // Handle color change
+    const handleColorChange = (e) => {
+        const { value, checked } = e.target;
+        setNewProduct(prev => {
+            let newColors = [...prev.colors];
+            if (checked) {
+                if (!newColors.includes(value)) {
+                    newColors.push(value);
+                }
+            } else {
+                newColors = newColors.filter(color => color !== value);
+            }
+            return {
+                ...prev,
+                colors: newColors
+            };
+        });
+    };
+
     // Handle form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -82,6 +102,10 @@ const Product = () => {
         }
         if (newProduct.size.length === 0) {
             alert('Vui lòng chọn ít nhất một size!');
+            return;
+        }
+        if (newProduct.colors.length === 0) {
+            alert('Vui lòng chọn ít nhất một màu!');
             return;
         }
         try {
@@ -101,7 +125,8 @@ const Product = () => {
                 stock: '',
                 description: '',
                 image: '',
-                size: ['S', 'M', 'L', 'XL']
+                size: ['S', 'M', 'L', 'XL'],
+                colors: ['Đen', 'Trắng']
             });
             alert('Thêm sản phẩm thành công!');
         } catch (err) {
@@ -130,9 +155,8 @@ const Product = () => {
         setLoadingDetail(true);
         setErrorDetail(null);
         try {
-            const { product } = await productAPI.getProductById(id); // Lấy đúng product object
-            setSelectedProduct(product); // Gán đúng dữ liệu vào state
-
+            const res = await productAPI.getProductById(id);
+            setSelectedProduct(res.data || res);
         } catch (err) {
             setErrorDetail('Không thể tải chi tiết sản phẩm');
             setSelectedProduct(null);
@@ -150,7 +174,8 @@ const Product = () => {
             stock: product.stock || '',
             description: product.description || '',
             image: product.image || '',
-            size: product.size || ['S', 'M', 'L', 'XL']
+            size: product.size || ['S', 'M', 'L', 'XL'],
+            colors: product.colors || ['Đen', 'Trắng']
         });
         setShowEditForm(true);
     };
@@ -164,6 +189,10 @@ const Product = () => {
         }
         if (newProduct.size.length === 0) {
             alert('Vui lòng chọn ít nhất một size!');
+            return;
+        }
+        if (newProduct.colors.length === 0) {
+            alert('Vui lòng chọn ít nhất một màu!');
             return;
         }
         try {
@@ -186,7 +215,8 @@ const Product = () => {
                 stock: '',
                 description: '',
                 image: '',
-                size: ['S', 'M', 'L', 'XL']
+                size: ['S', 'M', 'L', 'XL'],
+                colors: ['Đen', 'Trắng']
             });
             alert('Cập nhật sản phẩm thành công!');
         } catch (err) {
@@ -291,6 +321,22 @@ const Product = () => {
                                 ))}
                             </div>
                         </div>
+                        <div className="form-group">
+                            <label>Màu sắc có sẵn:</label>
+                            <div className="color-checkboxes">
+                                {['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Vàng'].map(color => (
+                                    <label key={color} className="color-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            value={color}
+                                            checked={newProduct.colors.includes(color)}
+                                            onChange={handleColorChange}
+                                        />
+                                        <span>{color}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Lưu</button>
                             <button
@@ -375,6 +421,22 @@ const Product = () => {
                                 ))}
                             </div>
                         </div>
+                        <div className="form-group">
+                            <label>Màu sắc có sẵn:</label>
+                            <div className="color-checkboxes">
+                                {['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Vàng'].map(color => (
+                                    <label key={color} className="color-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            value={color}
+                                            checked={newProduct.colors.includes(color)}
+                                            onChange={handleColorChange}
+                                        />
+                                        <span>{color}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Cập nhật</button>
                             <button
@@ -410,6 +472,7 @@ const Product = () => {
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
                                 <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
                                 <p><b>Size có sẵn:</b> {selectedProduct.size && selectedProduct.size.length > 0 ? selectedProduct.size.join(', ') : 'N/A'}</p>
+                                <p><b>Màu sắc có sẵn:</b> {selectedProduct.colors && selectedProduct.colors.length > 0 ? selectedProduct.colors.join(', ') : 'N/A'}</p>
                                 <p><b>Mô tả:</b> {selectedProduct.description || 'Không có mô tả'}</p>
                                 <button className="btn btn-cancel" onClick={() => setShowDetail(false)}>Đóng</button>
                             </>
@@ -428,6 +491,7 @@ const Product = () => {
                             <th>Hình ảnh</th>
                             <th>Tồn kho</th>
                             <th>Size</th>
+                            <th>Màu sắc</th>
                             <th>Mô tả</th>
                             <th>Thao tác</th>
                         </tr>
@@ -452,6 +516,7 @@ const Product = () => {
                                 </td>
                                 <td>{product.stock ?? 'N/A'}</td>
                                 <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
+                                <td>{product.colors && product.colors.length > 0 ? product.colors.join(', ') : 'N/A'}</td>
                                 <td className="description-cell">{product.description || 'Không có mô tả'}</td>
                                 <td>
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
