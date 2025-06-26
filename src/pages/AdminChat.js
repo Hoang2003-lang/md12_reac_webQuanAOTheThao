@@ -26,8 +26,39 @@ const AdminChat = () => {
     socketRef.current.on('new message', (msg) => {
       if (msg.chatId === currentChatIdRef.current) {
         setMessages(prev => [...prev, msg.message]);
-      } 
+      }
     });
+
+    // thả icon
+    socketRef.current.on('reaction updated', ({ messageId, userId, emoji }) => {
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === messageId
+            ? {
+              ...msg,
+              reactions: [
+                ...(msg.reactions || []).filter(r => r.user !== userId),
+                { user: userId, emoji }
+              ]
+            }
+            : msg
+        )
+      );
+    });
+
+    // thu hồi tin nhắn
+    socketRef.current.on('message deleted', ({ messageId }) => {
+      setMessages(prev => prev.filter(msg => msg._id !== messageId));
+    });
+
+    // xoá đoạn chat
+    socketRef.current.on('chat messages cleared', ({ chatId }) => {
+      if (chatId === currentChatIdRef.current) {
+        setMessages([]);
+      }
+    });
+
+
 
     return () => {
       socketRef.current.disconnect();
@@ -96,15 +127,15 @@ const AdminChat = () => {
     try {
       // await axios.post('http://localhost:3001/api/chats/message', msgData);
 
-      const sentMsg = {
-        sender: adminId,
-        senderId: adminId,
-        content: message,
-        type: 'text',
-        timestamp: new Date(),
-        isRead: false,
-        chatId: selectedChat.chatId
-      };
+      // const sentMsg = {
+      //   sender: adminId,
+      //   senderId: adminId,
+      //   content: message,
+      //   type: 'text',
+      //   timestamp: new Date(),
+      //   isRead: false,
+      //   chatId: selectedChat.chatId
+      // };
 
       socketRef.current.emit('send message', msgData);
 
@@ -113,6 +144,59 @@ const AdminChat = () => {
     } catch (err) {
       console.error('❌ Gửi tin nhắn lỗi:', err);
       alert('Không gửi được tin nhắn!');
+    }
+  };
+
+  const handleRightClick = (e, msg) => {
+    e.preventDefault();
+    // const isAdmin = msg.sender === adminId;
+    const isAdmin = (typeof msg.sender === 'string' ? msg.sender : msg.sender?._id) === adminId;
+
+    // const choice = window.prompt('Phản ứng: 1 👍, 2 ❤️, 3 😂, 4 Thu hồi');
+    let promptText = 'Chọn cảm xúc: 1 👍, 2 ❤️, 3 😂';
+    if (isAdmin) {
+      promptText += ', 4 Thu hồi';
+    }
+    const choice = window.prompt(promptText);
+
+    if (choice === '1') reactToMessage(msg._id, '👍');
+    if (choice === '2') reactToMessage(msg._id, '❤️');
+    if (choice === '3') reactToMessage(msg._id, '😂');
+    if (choice === '4' && isAdmin) deleteMessage(msg._id);
+  };
+
+  const reactToMessage = (messageId, emoji) => {
+    socketRef.current.emit('reaction message', {
+      chatId: selectedChat.chatId,
+      messageId,
+      userId: adminId,
+      emoji
+    });
+  };
+
+  const deleteMessage = (messageId) => {
+    socketRef.current.emit('delete message', {
+      chatId: selectedChat.chatId,
+      messageId
+    });
+  };
+
+  const handleDeleteChat = async () => {
+    const confirmed = window.confirm('Bạn có chắc chắn muốn xoá toàn bộ đoạn chat?');
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:3001/api/chats/${selectedChat.chatId}`);
+
+      // Xoá khỏi danh sách hiển thị
+      setChatList(prev => prev.filter(c => c.chatId !== selectedChat.chatId));
+
+      // Xoá UI hiện tại
+      setSelectedChat(null);
+      setMessages([]);
+    } catch (err) {
+      console.error('❌ Lỗi xoá đoạn chat:', err);
+      alert('Không thể xoá đoạn chat');
     }
   };
 
@@ -166,6 +250,7 @@ const AdminChat = () => {
                 <div className="chat-header">
                   <button onClick={() => setSelectedChat(null)}>⬅ Quay lại</button>
                   <h4>{selectedChat.userName}</h4>
+                  <button onClick={handleDeleteChat} className="btn-danger">🗑️ Xoá</button>
                 </div>
 
                 <div className="messages">
@@ -176,8 +261,19 @@ const AdminChat = () => {
                         ? 'admin'
                         : 'user'
                         }`}
+                      onContextMenu={(e) => handleRightClick(e, msg)} // sự kiện
                     >
-                      <div className="message-content">{msg.content}</div>
+                      <div className="message-content">
+                        {msg.content}
+
+                        {msg.reactions?.length > 0 && (
+                          <div className="reactions">
+                            {msg.reactions.map((r, i) => (
+                              <span key={i}>{r.emoji}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <div className="message-time">
                         {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
                           hour: '2-digit',

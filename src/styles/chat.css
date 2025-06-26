@@ -184,3 +184,15 @@
   cursor: pointer;
   font-size: 14px;
 }
+
+.reactions {
+  margin-top: 4px;
+  font-size: 18px;
+}
+.chat-header .btn-danger {
+  color: red;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  cursor: pointer;  
+}
