@@ -293,6 +293,46 @@ export const notificationAPI = {
     }
 };
 
+// === BANNERS ===
+export const bannerAPI = {
+    getAllBanners: async () => {
+        const res = await fetch(`${API_BASE_URL}banners`, { headers: getHeaders() });
+        return handleResponse(res);
+    },
+    getActiveBanners: async () => {
+        const res = await fetch(`${API_BASE_URL}banners/active`, { headers: getHeaders() });
+        return handleResponse(res);
+    },
+    getBannerById: async (id) => {
+        const res = await fetch(`${API_BASE_URL}banners/${id}`, { headers: getHeaders() });
+        return handleResponse(res);
+    },
+    createBanner: async (data) => {
+        const res = await fetch(`${API_BASE_URL}banners`, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
+        });
+        return handleResponse(res);
+    },
+    updateBanner: async (id, data) => {
+        const res = await fetch(`${API_BASE_URL}banners/${id}`, {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
+        });
+        return handleResponse(res);
+    },
+    deleteBanner: async (id) => {
+        const res = await fetch(`${API_BASE_URL}banners/${id}`, {
+            method: 'DELETE', headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    toggleBannerStatus: async (id) => {
+        const res = await fetch(`${API_BASE_URL}banners/${id}/toggle`, {
+            method: 'PUT', headers: getHeaders()
+        });
+        return handleResponse(res);
+    }
+};
+
 const apiConfig = {
     API_BASE_URL,
     API_ENDPOINTS,
@@ -304,7 +344,8 @@ const apiConfig = {
     postAPI,
     orderAPI,
     chatAPI,
-    notificationAPI
+    notificationAPI,
+    bannerAPI
 };
 
 export default apiConfig;
