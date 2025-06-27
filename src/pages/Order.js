@@ -7,6 +7,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState(null); // State to track which dropdown is open
+  const [detailOrderId, setDetailOrderId] = useState(null); // State to track which order's detail is open
 
   // Fetch orders on component mount
   useEffect(() => {
@@ -105,7 +106,7 @@ const Order = () => {
   const getStatusDisplay = (status) => {
     switch(status) {
       case 'pending':
-        return 'Đang chờ xác nhận';
+        return 'Chờ xác nhận';
       case 'confirmed':
         return 'Đã xác nhận';
       case 'cancelled':
@@ -146,9 +147,10 @@ const Order = () => {
       <table className="order-table">
         <thead>
           <tr>
-            <th>Mã đơn hàng</th>
+            {/* Ẩn 3 cột: Mã đơn hàng, Tên người đặt, Email */}
+            {/* <th>Mã đơn hàng</th>
             <th>Tên người đặt</th>
-            <th>Email</th>
+            <th>Email</th> */}
             <th>Địa chỉ</th>
             <th>Thông tin sản phẩm</th>
             <th>Tổng tiền</th>
@@ -158,53 +160,75 @@ const Order = () => {
             <th>Phương thức thanh toán</th>
             <th>Ngày đặt</th>
             <th>Trạng thái & Thao tác</th>
+            <th></th> {/* Cột cho nút xem chi tiết */}
           </tr>
         </thead>
         <tbody>
           {orders.length === 0 ? (
             <tr>
-              <td colSpan={12} style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
+              <td colSpan={10} style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
                 Không có đơn hàng nào
               </td>
             </tr>
           ) : (
             orders.map(order => {
+              const showDetail = detailOrderId === order._id;
               return (
-                <tr key={order._id}>
-                  <td>{order._id || 'N/A'}</td>
-                  <td>{order.id_user?.name || 'Không có tên'}</td>
-                  <td>{order.id_user?.email || 'Không có email'}</td>
-                  <td>{order.shippingAddress || 'Không có địa chỉ'}</td>
-                  <td>{formatProducts(order.items)}</td>
-                  <td>{order.totalPrice ? order.totalPrice.toLocaleString('vi-VN') : calculateTotal(order.items).toLocaleString('vi-VN')} VNĐ</td>
-                  <td>{order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') : '0'} VNĐ</td>
-                  <td>{order.discount ? order.discount.toLocaleString('vi-VN') : '0'} VNĐ</td>
-                  <td>{order.finalTotal ? order.finalTotal.toLocaleString('vi-VN') : '0'} VNĐ</td>
-                  <td>{order.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : order.paymentMethod || 'COD'}</td>
-                  <td>{formatDate(order.createdAt)}</td>
-                  <td style={{ position: 'relative' }}>
-                    {order.status === 'pending' ? (
-                      <div className="order-status-action-wrap">
-                        <button
-                          className={`order-status-badge ${getStatusClass(order.status)}`}
-                          onClick={() => toggleActions(order._id)}
-                        >
+                <React.Fragment key={order._id}>
+                  <tr>
+                    {/* Ẩn 3 cột: Mã đơn hàng, Tên người đặt, Email */}
+                    {/* <td>{order._id || 'N/A'}</td>
+                    <td>{order.id_user?.name || 'Không có tên'}</td>
+                    <td>{order.id_user?.email || 'Không có email'}</td> */}
+                    <td>
+                      <button className="btn btn-detail" onClick={() => setDetailOrderId(showDetail ? null : order._id)}>
+                        {showDetail ? 'Ẩn' : 'Xem chi tiết'}
+                      </button>
+                    </td>
+                    <td>{order.shippingAddress || 'Không có địa chỉ'}</td>
+                    <td>{formatProducts(order.items)}</td>
+                    <td>{order.totalPrice ? order.totalPrice.toLocaleString('vi-VN') : calculateTotal(order.items).toLocaleString('vi-VN')} VNĐ</td>
+                    <td>{order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                    <td>{order.discount ? order.discount.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                    <td>{order.finalTotal ? order.finalTotal.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                    <td>{order.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : order.paymentMethod || 'COD'}</td>
+                    <td>{formatDate(order.createdAt)}</td>
+                    <td style={{ position: 'relative' }}>
+                      {order.status === 'pending' ? (
+                        <div className="order-status-action-wrap">
+                          <button
+                            className={`order-status-badge ${getStatusClass(order.status)}`}
+                            onClick={() => toggleActions(order._id)}
+                          >
+                            {getStatusDisplay(order.status)}
+                          </button>
+                          {activeOrderId === order._id && (
+                            <div className="order-action-dropdown">
+                              <button className="btn btn-confirm" onClick={() => handleConfirm(order._id)}>Xác nhận đơn hàng</button>
+                              <button className="btn btn-cancel" onClick={() => handleCancel(order._id)}>Hủy đơn</button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className={`order-status-badge ${getStatusClass(order.status)}`}>
                           {getStatusDisplay(order.status)}
-                        </button>
-                        {activeOrderId === order._id && (
-                          <div className="order-action-dropdown">
-                            <button className="btn btn-confirm" onClick={() => handleConfirm(order._id)}>Xác nhận đơn hàng</button>
-                            <button className="btn btn-cancel" onClick={() => handleCancel(order._id)}>Hủy đơn</button>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className={`order-status-badge ${getStatusClass(order.status)}`}>
-                        {getStatusDisplay(order.status)}
-                      </span>
-                    )}
-                  </td>
-                </tr>
+                        </span>
+                      )}
+                    </td>
+                    
+                  </tr>
+                  {showDetail && (
+                    <tr className="order-detail-row">
+                      <td colSpan={11}>
+                        <div className="order-detail-box">
+                          <div><b>Mã đơn hàng:</b> {order._id || 'N/A'}</div>
+                          <div><b>Tên người đặt:</b> {order.id_user?.name || 'Không có tên'}</div>
+                          <div><b>Email:</b> {order.id_user?.email || 'Không có email'}</div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })
           )}
