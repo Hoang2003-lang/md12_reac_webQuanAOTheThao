@@ -16,7 +16,8 @@ const Product = () => {
         description: '',
         image: '',
         size: ['S', 'M', 'L', 'XL'],
-        colors: ['Đen', 'Trắng']
+        colors: ['Đen', 'Trắng'],
+        categoryCode: ''
     });
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -126,7 +127,8 @@ const Product = () => {
                 description: '',
                 image: '',
                 size: ['S', 'M', 'L', 'XL'],
-                colors: ['Đen', 'Trắng']
+                colors: ['Đen', 'Trắng'],
+                categoryCode: ''
             });
             alert('Thêm sản phẩm thành công!');
         } catch (err) {
@@ -175,7 +177,8 @@ const Product = () => {
             description: product.description || '',
             image: product.image || '',
             size: product.size || ['S', 'M', 'L', 'XL'],
-            colors: product.colors || ['Đen', 'Trắng']
+            colors: product.colors || ['Đen', 'Trắng'],
+            categoryCode: product.categoryCode || ''
         });
         setShowEditForm(true);
     };
@@ -216,12 +219,30 @@ const Product = () => {
                 description: '',
                 image: '',
                 size: ['S', 'M', 'L', 'XL'],
-                colors: ['Đen', 'Trắng']
+                colors: ['Đen', 'Trắng'],
+                categoryCode: ''
             });
             alert('Cập nhật sản phẩm thành công!');
         } catch (err) {
             alert('Không thể cập nhật sản phẩm: ' + (err.message || 'Lỗi không xác định'));
             console.error('Error updating product:', err);
+        }
+    };
+
+    // Format date function
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (error) {
+            return 'N/A';
         }
     };
 
@@ -303,6 +324,16 @@ const Product = () => {
                                 value={newProduct.image}
                                 onChange={handleInputChange}
                                 required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Mã danh mục:</label>
+                            <input
+                                type="text"
+                                name="categoryCode"
+                                value={newProduct.categoryCode}
+                                onChange={handleInputChange}
+                                placeholder="VD: japan, vietnam, etc."
                             />
                         </div>
                         <div className="form-group">
@@ -406,6 +437,16 @@ const Product = () => {
                             />
                         </div>
                         <div className="form-group">
+                            <label>Mã danh mục:</label>
+                            <input
+                                type="text"
+                                name="categoryCode"
+                                value={newProduct.categoryCode}
+                                onChange={handleInputChange}
+                                placeholder="VD: japan, vietnam, etc."
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Size có sẵn:</label>
                             <div className="size-checkboxes">
                                 {['S', 'M', 'L', 'XL'].map(size => (
@@ -471,9 +512,11 @@ const Product = () => {
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
                                 <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
+                                <p><b>Mã danh mục:</b> {selectedProduct.categoryCode || 'N/A'}</p>
                                 <p><b>Size có sẵn:</b> {selectedProduct.size && selectedProduct.size.length > 0 ? selectedProduct.size.join(', ') : 'N/A'}</p>
                                 <p><b>Màu sắc có sẵn:</b> {selectedProduct.colors && selectedProduct.colors.length > 0 ? selectedProduct.colors.join(', ') : 'N/A'}</p>
                                 <p><b>Mô tả:</b> {selectedProduct.description || 'Không có mô tả'}</p>
+                                <p><b>Ngày cập nhật:</b> {formatDate(selectedProduct.updatedAt)}</p>
                                 <button className="btn btn-cancel" onClick={() => setShowDetail(false)}>Đóng</button>
                             </>
                         ) : null}
@@ -490,6 +533,7 @@ const Product = () => {
                             <th>Giá</th>
                             <th>Hình ảnh</th>
                             <th>Tồn kho</th>
+                            <th>Mã danh mục</th>
                             <th>Size</th>
                             <th>Màu sắc</th>
                             <th>Mô tả</th>
@@ -515,6 +559,7 @@ const Product = () => {
                                     />
                                 </td>
                                 <td>{product.stock ?? 'N/A'}</td>
+                                <td>{product.categoryCode || 'N/A'}</td>
                                 <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
                                 <td>{product.colors && product.colors.length > 0 ? product.colors.join(', ') : 'N/A'}</td>
                                 <td className="description-cell">{product.description || 'Không có mô tả'}</td>
