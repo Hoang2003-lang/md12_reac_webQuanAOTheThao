@@ -507,7 +507,7 @@ const Product = () => {
                                 <img
                                     src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
                                     alt={selectedProduct.name || 'No name'}
-                                    style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, margin: '0 auto 1rem' }}
+                                    style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, margin: '0 auto 1rem', background: '#fff', display: 'block' }}
                                 />
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
@@ -551,12 +551,12 @@ const Product = () => {
                                         : 'N/A'}
                                 </td>
                                 <td>
-                                    <img
-                                        src={product.image ? product.image : 'https://via.placeholder.com/60x60?text=No+Image'}
-                                        alt={product.name ? product.name : 'No name'}
-                                        className="product-image"
-                                        style={{ objectFit: 'cover' }}
-                                    />
+                                    <div className="product-image">
+                                        <img
+                                            src={product.image ? product.image : 'https://via.placeholder.com/60x60?text=No+Image'}
+                                            alt={product.name ? product.name : 'No name'}
+                                        />
+                                    </div>
                                 </td>
                                 <td>{product.stock ?? 'N/A'}</td>
                                 <td>{product.categoryCode || 'N/A'}</td>
@@ -575,7 +575,10 @@ const Product = () => {
                                             Sửa
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(product._id)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(product._id);
+                                            }}
                                             className="btn btn-delete"
                                         >
                                             Xóa
