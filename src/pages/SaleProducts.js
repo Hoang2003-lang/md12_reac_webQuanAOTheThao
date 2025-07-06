@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { saleProductAPI } from '../config/api';
 import '../styles/SaleProducts.css';
 
 const SaleProducts = () => {
@@ -6,24 +7,9 @@ const SaleProducts = () => {
   const [loading, setLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
-  // Mock data - replace with actual API calls
-  const mockSaleProducts = [
-    {
-      "_id": "6868d2aaa5ff60d4b25d8077",
-      "name": "Man City sân khách mùa giải 2024-2025",
-      "price": 120000,
-      "discount_percent": 20,
-      "discount_price": 96000,
-      "stock": 213,
-      "description": "Chất vải thun lạnh thoáng mát, thoát mồ hôi tốt, Toàn thân in chuyển…",
-      "image": "https://vicsport.vn/wp-content/uploads/2024/03/ao-da-banh-clb-man-city…",
-      "size": ["M", "L", "XL"],
-      "colors": ["Đen", "Trắng"],
-      "categoryCode": "mancity",
-      "isDiscount": true
-    }
-  ];
+  const [error, setError] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   useEffect(() => {
     fetchSaleProducts();
@@ -32,13 +18,13 @@ const SaleProducts = () => {
 
   const fetchSaleProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Replace with actual API call
-      // const response = await fetch('/api/sale-products');
-      // const data = await response.json();
-      setSaleProducts(mockSaleProducts);
+      const data = await saleProductAPI.getAllSaleProducts();
+      setSaleProducts(data);
     } catch (error) {
       console.error('Error fetching sale products:', error);
+      setError(error.message || 'Có lỗi xảy ra khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -52,13 +38,12 @@ const SaleProducts = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
       try {
-        // Replace with actual API call
-        // await fetch(`/api/sale-products/${productId}`, { method: 'DELETE' });
+        await saleProductAPI.deleteSaleProduct(productId);
         setSaleProducts(saleProducts.filter(p => p._id !== productId));
         alert('Xóa sản phẩm thành công!');
       } catch (error) {
         console.error('Error deleting product:', error);
-        alert('Có lỗi xảy ra khi xóa sản phẩm!');
+        alert(error.message || 'Có lỗi xảy ra khi xóa sản phẩm!');
       }
     }
   };
@@ -83,23 +68,13 @@ const SaleProducts = () => {
     try {
       if (editingProduct) {
         // Update existing product
-        // await fetch(`/api/sale-products/${editingProduct._id}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(productData)
-        // });
+        await saleProductAPI.updateSaleProduct(editingProduct._id, productData);
         setSaleProducts(saleProducts.map(p => 
           p._id === editingProduct._id ? { ...productData, _id: p._id } : p
         ));
       } else {
         // Add new product
-        // const response = await fetch('/api/sale-products', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(productData)
-        // });
-        // const newProduct = await response.json();
-        const newProduct = { ...productData, _id: Date.now().toString() };
+        const newProduct = await saleProductAPI.createSaleProduct(productData);
         setSaleProducts([...saleProducts, newProduct]);
       }
       
@@ -109,9 +84,47 @@ const SaleProducts = () => {
       alert(editingProduct ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!');
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Có lỗi xảy ra khi lưu sản phẩm!');
+      alert(error.message || 'Có lỗi xảy ra khi lưu sản phẩm!');
     }
   };
+
+  const handleToggleDiscountStatus = async (productId, currentStatus) => {
+    try {
+      await saleProductAPI.updateDiscountStatus(productId, !currentStatus);
+      setSaleProducts(saleProducts.map(p => 
+        p._id === productId ? { ...p, isDiscount: !currentStatus } : p
+      ));
+      alert('Cập nhật trạng thái giảm giá thành công!');
+    } catch (error) {
+      console.error('Error updating discount status:', error);
+      alert(error.message || 'Có lỗi xảy ra khi cập nhật trạng thái!');
+    }
+  };
+
+  const handleShowDetail = (product) => {
+    setSelectedProduct(product);
+    setShowDetail(true);
+  };
+
+  const handleCloseDetail = () => {
+    setShowDetail(false);
+    setSelectedProduct(null);
+  };
+
+  if (error) {
+    return (
+      <div className="sale-products-container">
+        <div className="error-message" style={{ 
+          textAlign: 'center', 
+          padding: '40px', 
+          color: '#ff6b6b', 
+          fontSize: '16px' 
+        }}>
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sale-products-container">
@@ -121,7 +134,7 @@ const SaleProducts = () => {
           className="add-product-btn"
           onClick={() => setShowForm(true)}
         >
-          Thêm sản phẩm giảm giá
+          Thêm sản phẩm
         </button>
       </div>
 
@@ -256,56 +269,120 @@ const SaleProducts = () => {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading">Đang tải...</div>
-      ) : (
-        <div className="sale-products-grid">
-          {saleProducts.map((product) => (
-            <div key={product._id} className="sale-product-card">
-              <div className="product-image">
-                <img src={product.image} alt={product.name} />
-                <div className="discount-badge">
-                  -{product.discount_percent}%
-                </div>
+      {showDetail && selectedProduct && (
+        <div className="detail-overlay" onClick={handleCloseDetail}>
+          <div className="detail-modal" onClick={e => e.stopPropagation()}>
+            <button className="close-detail-btn" onClick={handleCloseDetail}>&times;</button>
+            <div className="detail-img-wrap">
+              <img src={selectedProduct.image} alt={selectedProduct.name} className="detail-img" />
+            </div>
+            <div className="detail-info">
+              <h2>{selectedProduct.name}</h2>
+              <div className="detail-row">
+                <span className="original-price">{selectedProduct.price.toLocaleString('vi-VN')} VNĐ</span>
+                <span className="discount-price">{selectedProduct.discount_price.toLocaleString('vi-VN')} VNĐ</span>
+                <span className="detail-discount">-{selectedProduct.discount_percent}%</span>
               </div>
-              
-              <div className="product-info">
-                <h3>{product.name}</h3>
-                <div className="price-info">
-                  <span className="original-price">
-                    {product.price.toLocaleString('vi-VN')} VNĐ
-                  </span>
-                  <span className="discount-price">
-                    {product.discount_price.toLocaleString('vi-VN')} VNĐ
-                  </span>
-                </div>
-                
-                <div className="product-details">
-                  <p><strong>Tồn kho:</strong> {product.stock}</p>
-                  <p><strong>Kích thước:</strong> {product.size.join(', ')}</p>
-                  <p><strong>Màu sắc:</strong> {product.colors.join(', ')}</p>
-                  <p><strong>Danh mục:</strong> {product.categoryCode}</p>
-                </div>
-                
-                <p className="description">{product.description}</p>
-                
-                <div className="product-actions">
-                  <button 
-                    className="edit-btn"
-                    onClick={() => handleEdit(product)}
-                  >
-                    Chỉnh sửa
-                  </button>
-                  <button 
-                    className="delete-btn"
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    Xóa
-                  </button>
-                </div>
+              <div className="detail-row"><b>Tồn kho:</b> {selectedProduct.stock}</div>
+              <div className="detail-row"><b>Kích thước:</b> {selectedProduct.size.join(', ')}</div>
+              <div className="detail-row"><b>Màu sắc:</b> {selectedProduct.colors.join(', ')}</div>
+              <div className="detail-row"><b>Danh mục:</b> {selectedProduct.categoryCode}</div>
+              <div className="detail-row">
+                <b>Trạng thái:</b>
+                <span className={`status-indicator ${selectedProduct.isDiscount ? 'status-active' : 'status-inactive'}`}
+                  style={{marginLeft: 8}}>
+                  <span className="status-icon">{selectedProduct.isDiscount ? '✔' : '✖'}</span>
+                  {selectedProduct.isDiscount ? 'Đang giảm giá' : 'Không giảm giá'}
+                </span>
+              </div>
+              <div className="detail-desc">
+                <b>Mô tả:</b>
+                <div>{selectedProduct.description}</div>
               </div>
             </div>
-          ))}
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="loading">Đang tải...</div>
+      ) : saleProducts.length === 0 ? (
+        <div className="empty-state">
+          <h3>Chưa có sản phẩm giảm giá</h3>
+          <p>Bắt đầu bằng cách thêm sản phẩm giảm giá đầu tiên</p>
+          <button 
+            className="add-product-btn"
+            onClick={() => setShowForm(true)}
+          >
+            Thêm sản phẩm
+          </button>
+        </div>
+      ) : (
+        <div className="sale-products-table-wrapper">
+          <table className="sale-products-table">
+            <thead>
+              <tr>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá gốc</th>
+                <th>Giá giảm</th>
+                <th>% Giảm</th>
+                <th>Tồn kho</th>
+                <th>Kích thước</th>
+                <th>Màu sắc</th>
+                <th>Danh mục</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {saleProducts.map((product) => (
+                <tr key={product._id}>
+                  <td>
+                    <img src={product.image} alt={product.name} className="table-product-img" onClick={() => handleShowDetail(product)} style={{cursor: 'pointer'}} />
+                  </td>
+                  <td>{product.name}</td>
+                  <td><span className="original-price">{product.price.toLocaleString('vi-VN')} VNĐ</span></td>
+                  <td><span className="discount-price">{product.discount_price.toLocaleString('vi-VN')} VNĐ</span></td>
+                  <td>-{product.discount_percent}%</td>
+                  <td>{product.stock}</td>
+                  <td>{product.size.join(', ')}</td>
+                  <td>{product.colors.join(', ')}</td>
+                  <td>{product.categoryCode}</td>
+                  <td>
+                    <span className={`status-indicator ${product.isDiscount ? 'status-active' : 'status-inactive'}`}>
+                      <span className="status-icon">
+                        {product.isDiscount ? '✔' : '✖'}
+                      </span>
+                      {product.isDiscount ? 'Đang giảm giá' : 'Không giảm giá'}
+                    </span>
+                  </td>
+                  <td className="action-cell">
+                    <div className="action-group">
+                      <button 
+                        className="edit-btn"
+                        onClick={() => handleEdit(product)}
+                      >
+                        Sửa
+                      </button>
+                      <button 
+                        className="delete-btn"
+                        onClick={() => handleDelete(product._id)}
+                      >
+                        Xóa
+                      </button>
+                      <button 
+                        className={`discount-toggle-btn ${product.isDiscount ? 'active' : 'inactive'}`}
+                        onClick={() => handleToggleDiscountStatus(product._id, product.isDiscount)}
+                      >
+                        {product.isDiscount ? 'Tắt giảm giá' : 'Bật giảm giá'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

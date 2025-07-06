@@ -46,6 +46,17 @@ export const API_ENDPOINTS = {
         GET_MESSAGES: (chatId) => `${API_BASE_URL}/chats/${chatId}`,
         GET_USER_CHATS: (userId) => `${API_BASE_URL}/chats/user/${userId}`,
         MARK_AS_READ: `${API_BASE_URL}/chats/read`,
+    },
+    SALE_PRODUCTS: {
+        LIST: `${API_BASE_URL}/sale-products`,
+        SEARCH: `${API_BASE_URL}/sale-products/search`,
+        BY_CATEGORY: (categoryCode) => `${API_BASE_URL}/sale-products/category/${categoryCode}`,
+        TOP_DISCOUNT: `${API_BASE_URL}/sale-products/top-discount`,
+        DETAIL: (id) => `${API_BASE_URL}/sale-products/${id}`,
+        CREATE: `${API_BASE_URL}/sale-products/add`,
+        UPDATE: (id) => `${API_BASE_URL}/sale-products/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/sale-products/${id}`,
+        UPDATE_DISCOUNT_STATUS: (id) => `${API_BASE_URL}/sale-products/${id}/discount-status`,
     }
 };
 
@@ -54,7 +65,11 @@ export const getHeaders = (token = null) => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    
+    // If no token provided, try to get from localStorage
+    const authToken = token || localStorage.getItem('token');
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    
     return headers;
 };
 
@@ -333,6 +348,64 @@ export const bannerAPI = {
     }
 };
 
+// === SALE PRODUCTS ===
+export const saleProductAPI = {
+    getAllSaleProducts: async () => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.LIST, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    searchSaleProducts: async (query) => {
+        const res = await fetch(`${API_ENDPOINTS.SALE_PRODUCTS.SEARCH}?q=${encodeURIComponent(query)}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getSaleProductsByCategory: async (categoryCode) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.BY_CATEGORY(categoryCode), {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getTopDiscountProducts: async () => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.TOP_DISCOUNT, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    getSaleProductById: async (id) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.DETAIL(id), {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    createSaleProduct: async (data) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.CREATE, {
+            method: 'POST', headers: getHeaders(), body: JSON.stringify(data)
+        });
+        return handleResponse(res);
+    },
+    updateSaleProduct: async (id, data) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.UPDATE(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(data)
+        });
+        return handleResponse(res);
+    },
+    deleteSaleProduct: async (id) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.DELETE(id), {
+            method: 'DELETE', headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+    updateDiscountStatus: async (id, isDiscount) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.UPDATE_DISCOUNT_STATUS(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify({ isDiscount })
+        });
+        return handleResponse(res);
+    }
+};
+
 const apiConfig = {
     API_BASE_URL,
     API_ENDPOINTS,
@@ -345,7 +418,8 @@ const apiConfig = {
     orderAPI,
     chatAPI,
     notificationAPI,
-    bannerAPI
+    bannerAPI,
+    saleProductAPI
 };
 
 export default apiConfig;
