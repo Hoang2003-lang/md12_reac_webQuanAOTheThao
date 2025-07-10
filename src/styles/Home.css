@@ -247,8 +247,8 @@ tr:hover {
 }
 
 .product-image {
-  width: 48px;
-  height: 48px;
+  width: 30px;
+  height: 39px;
   object-fit: cover;
   border-radius: 50%;
   display: block;
@@ -295,6 +295,18 @@ tr:hover {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0.5rem 0 0;
+}
+
+.sidebar-logo {
+  object-fit: cover;
+  border-radius: 50%;
+  background: #22223b;
+  border: 4px solid #22223b;
+  width: 100px;
+  height: 50px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  object-fit: contain;
+  margin-right: 200px;
 }
 
 @media (max-width: 900px) {

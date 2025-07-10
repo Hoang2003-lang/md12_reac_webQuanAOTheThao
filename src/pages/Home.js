@@ -8,13 +8,15 @@ import '../styles/Home.css';
 import Voucher from './voucher';
 import Banner from './Banner';
 import SaleProducts from './SaleProducts';
+import logo from '../assets/logoF7.png';
 
 const Home = () => {
   const [tab, setTab] = useState('dashboard');
   return (
     <div className="admin-layout">
       <aside className="sidebar">
-        <h3>Quản trị</h3>
+        <img src={logo} alt="Logo" className="sidebar-logo" />
+        <h3>Quản trị viên</h3>
         <ul>
           <li className={tab==='dashboard' ? 'active' : ''} onClick={()=>setTab('dashboard')}>Thống kê</li>
           <li className={tab==='users' ? 'active' : ''} onClick={()=>setTab('users')}>Quản lý người dùng</li>
