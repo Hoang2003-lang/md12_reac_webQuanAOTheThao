@@ -99,7 +99,7 @@ const AdminChat = () => {
     currentChatIdRef.current = chatId;
     socketRef.current.emit('join chat', chatId);
 
-    axios.get(`http://localhost:3001/api/chats/${selectedChat.chatId}`)
+    axios.get(`http://localhost:3002/api/chats/${selectedChat.chatId}`)
       .then(res => {
         setMessages(res.data.data.messages || []);
       })
@@ -186,7 +186,7 @@ const AdminChat = () => {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`http://localhost:3001/api/chats/${selectedChat.chatId}`);
+      await axios.delete(`http://localhost:3002/api/chats/${selectedChat.chatId}`);
 
       // Xoá khỏi danh sách hiển thị
       setChatList(prev => prev.filter(c => c.chatId !== selectedChat.chatId));

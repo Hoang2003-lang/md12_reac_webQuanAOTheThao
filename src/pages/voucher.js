@@ -158,7 +158,7 @@ const Voucher = () => {
                 usage_limit: Number(newVoucher.usage_limit)
             };
 
-            const response = await axios.put(`http://localhost:3001/api/vouchers/${editingVoucher.code}`, voucherData);
+            const response = await axios.put(`http://localhost:3002/api/vouchers/${editingVoucher.code}`, voucherData);
             const updatedVoucherData = response.data.data;
             setVouchers(prevVouchers => 
                 prevVouchers.map(v => v.code === editingVoucher.code ? updatedVoucherData : v)
