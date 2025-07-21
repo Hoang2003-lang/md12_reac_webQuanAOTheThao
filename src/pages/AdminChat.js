@@ -17,7 +17,7 @@ const AdminChat = () => {
 
   // Kết nối socket
   useEffect(() => {
-    socketRef.current = io('http://localhost:3001');
+    socketRef.current = io('http://localhost:3002');
 
     socketRef.current.on('connect', () => {
       console.log('🔌 Kết nối socket thành công');
@@ -67,7 +67,7 @@ const AdminChat = () => {
 
   // Lấy danh sách chat
   useEffect(() => {
-    axios.get('http://localhost:3001/api/chats')
+    axios.get('http://localhost:3002/api/chats')
       .then(res => {
         const chats = res.data.data;
 

@@ -1,12 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Table, Progress, List } from 'antd';
-import { 
-    ShoppingOutlined, 
-    UserOutlined, 
+import React, { useState, useEffect, useCallback } from 'react';
+import { Row, Col, Card, Statistic, Table, Progress, List, DatePicker, Space, Typography } from 'antd';
+import {
+    ShoppingOutlined,
+    UserOutlined,
     DollarOutlined,
     InboxOutlined
 } from '@ant-design/icons';
-import { productAPI, userAPI } from '../config/api';
+import { productAPI, userAPI, orderAPI } from '../config/api';
+import dayjs from 'dayjs';
+const { Title } = Typography;
+
+
+const calculateRevenueByDate = (orders, from, to) => {
+    if (!Array.isArray(orders)) return 0;
+    const fromDate = new Date(dayjs(from).startOf('day').toISOString());
+    const toDate = new Date(dayjs(to).endOf('day').toISOString());
+    const filteredOrders = orders.filter(order => {
+        const createdAt = new Date(order.createdAt);
+        return (
+            createdAt >= fromDate &&
+            createdAt <= toDate &&
+            order.status === 'delivered'
+        );
+    });
+    return filteredOrders.reduce((sum, order) => sum + (order.finalTotal || 0), 0);
+};
 
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -17,48 +35,86 @@ const Dashboard = () => {
         lowStockProducts: []
     });
     const [recentProducts, setRecentProducts] = useState([]);
+    const [topProducts, setTopProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
+    const [revenue, setRevenue] = useState(0);
+    const [fromDate, setFromDate] = useState(dayjs().startOf('month'));
+    const [toDate, setToDate] = useState(dayjs());
+    const totalSales = topProducts.reduce((sum, p) => sum + p.sales, 0);
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
-
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
         try {
             setLoading(true);
             const products = await productAPI.getAllProducts();
             const users = await userAPI.getAllUsers();
+            const res = await orderAPI.getAllOrders();
+            const data = Array.isArray(res) ? res : res.data?.orders || res.data || [];
 
+            setOrders(data);
             const totalProducts = products.length;
             const totalUsers = users.length;
             const lowStockProducts = products.filter(p => p.stock < 10);
+            const totalRevenue = data
+                .filter(o => o.status === 'delivered')
+                .reduce((sum, o) => sum + Number(o.finalTotal || 0), 0);
 
-            const mockStats = {
+            setStats({
                 totalProducts,
                 totalUsers,
-                totalRevenue: 15000000,
+                totalRevenue,
                 lowStockProducts
-            };
+            });
 
-            setStats(mockStats);
+            const productSalesMap = {};
+            const productNameMap = {};
+
+            data
+                .filter(order => order.status === 'delivered')
+                .forEach(order => {
+                    const items = order.items || order.cart || [];
+
+                    items.forEach(item => {
+                        const id = item.id_product || item.productId || item.id;
+                        const name = item.name;
+                        const quantity = item.purchaseQuantity || item.quantity || 1;
+
+                        if (id && name) {
+                            productSalesMap[id] = (productSalesMap[id] || 0) + quantity;
+                            productNameMap[id] = name;
+                        }
+                    });
+                });
+
+            const sortedTopProducts = Object.entries(productSalesMap)
+                .map(([id, sales]) => ({
+                    name: productNameMap[id],
+                    sales
+                }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+
+            setTopProducts(sortedTopProducts);
             setRecentProducts(products.slice(0, 5));
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const topProducts = [
-        { name: 'Áo Đấu Manchester United đen 2024/25', sales: 100 },
-        { name: 'Áo Đấu Manchester City 2024/25', sales: 98 },
-        { name: 'Áo Đấu Real Madrid 2024/25', sales: 85 },
-        { name: 'Áo Đấu Chelsea 2024/25', sales: 75 }
-    ];
+    useEffect(() => {
+        fetchDashboardData();
+    }, [fetchDashboardData]);
+    useEffect(() => {
+        if (fromDate && toDate && orders.length > 0) {
+            const total = calculateRevenueByDate(orders, fromDate, toDate);
+            setRevenue(total);
+        }
+    }, [fromDate, toDate, orders]);
 
     return (
         <div>
             <h1 style={{ marginBottom: 24 }}>Tổng quan hệ thống</h1>
-
             <Row gutter={16} style={{ marginBottom: 24 }}>
                 <Col span={6}>
                     <Card loading={loading}>
@@ -83,7 +139,7 @@ const Dashboard = () => {
                 <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
-                            title="Doanh thu"
+                            title="Tổng doanh thu"
                             value={stats.totalRevenue}
                             prefix={<DollarOutlined />}
                             suffix="đ"
@@ -105,8 +161,8 @@ const Dashboard = () => {
 
             <Row gutter={16}>
                 <Col span={12}>
-                    <Card 
-                        title="Top sản phẩm bán chạy" 
+                    <Card
+                        title="Top sản phẩm bán chạy"
                         loading={loading}
                         style={{ marginBottom: 24 }}
                     >
@@ -116,9 +172,9 @@ const Dashboard = () => {
                                 <List.Item key={index}>
                                     <List.Item.Meta
                                         avatar={
-                                            <div 
-                                                style={{ 
-                                                    width: 24, 
+                                            <div
+                                                style={{
+                                                    width: 24,
                                                     textAlign: 'center',
                                                     fontWeight: 'bold',
                                                     color: index < 3 ? '#1890ff' : 'inherit'
@@ -130,11 +186,12 @@ const Dashboard = () => {
                                         title={item.name}
                                     />
                                     <div>
-                                        <Progress 
-                                            percent={Math.round((item.sales / 120) * 100)} 
-                                            size="small" 
+                                        <Progress
+                                            percent={totalSales > 0 ? Math.round((item.sales / totalSales) * 100) : 0}
+                                            size="small"
                                             status="active"
                                             style={{ width: 120 }}
+                                            format={(percent) => `${percent}%`}
                                         />
                                     </div>
                                 </List.Item>
@@ -142,50 +199,87 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
+
                 <Col span={12}>
-                    <Card 
-                        title="Sản phẩm sắp hết hàng" 
+                    <Card
+                        title="Khoảng thời gian thống kê doanh thu"
                         loading={loading}
                         style={{ marginBottom: 24 }}
                     >
-                        <Table
-                            dataSource={stats.lowStockProducts}
-                            rowKey="_id"
-                            pagination={false}
-                            size="small"
-                            columns={[
-                                {
-                                    title: 'Tên sản phẩm',
-                                    dataIndex: 'name',
-                                    key: 'name',
-                                },
-                                {
-                                    title: 'Tồn kho',
-                                    dataIndex: 'stock',
-                                    key: 'stock',
-                                    render: (stock) => (
-                                        <span style={{ color: stock < 5 ? '#cf1322' : '#faad14' }}>
-                                            {stock}
-                                        </span>
-                                    ),
-                                },
-                                {
-                                    title: 'Trạng thái',
-                                    key: 'status',
-                                    render: (_, record) => (
-                                        <Progress
-                                            percent={Math.round((record.stock / 10) * 100)}
-                                            size="small"
-                                            status={record.stock < 5 ? "exception" : "active"}
-                                            style={{ width: 80 }}
-                                        />
-                                    ),
-                                },
-                            ]}
-                        />
+                        <Space direction="vertical" style={{ marginBottom: 24 }}>
+                            <Space size="large">
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Title level={5} style={{ marginTop: 16 }}>
+                                        Từ ngày:
+                                    </Title>
+                                    <DatePicker
+                                        value={fromDate}
+                                        onChange={(date) => setFromDate(date ? dayjs(date) : null)}
+                                        placeholder="Từ ngày"
+                                        format="DD/MM/YYYY"
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Title level={5} style={{ marginTop: 16 }}>
+                                        Đến ngày:
+                                    </Title>
+                                    <DatePicker
+                                        value={toDate}
+                                        onChange={(date) => setToDate(date ? dayjs(date) : null)}
+                                        placeholder="Đến ngày"
+                                        format="DD/MM/YYYY"
+                                    />
+                                </div>
+                            </Space>
+                            <Title level={4} style={{ marginTop: 16 }}>
+                                Doanh thu: {revenue.toLocaleString()} VND
+                            </Title>
+                        </Space>
                     </Card>
                 </Col>
             </Row>
+
+            <Card
+                title="Sản phẩm sắp hết hàng"
+                loading={loading}
+                style={{ marginBottom: 24 }}
+            >
+                <Table
+                    dataSource={stats.lowStockProducts}
+                    rowKey="_id"
+                    pagination={false}
+                    size="small"
+                    columns={[
+                        {
+                            title: 'Tên sản phẩm',
+                            dataIndex: 'name',
+                            key: 'name',
+                        },
+                        {
+                            title: 'Tồn kho',
+                            dataIndex: 'stock',
+                            key: 'stock',
+                            render: (stock) => (
+                                <span style={{ color: stock < 5 ? '#cf1322' : '#faad14' }}>
+                                    {stock}
+                                </span>
+                            ),
+                        },
+                        {
+                            title: 'Trạng thái',
+                            key: 'status',
+                            render: (_, record) => (
+                                <Progress
+                                    percent={Math.round((record.stock / 10) * 100)}
+                                    size="small"
+                                    status={record.stock < 5 ? "exception" : "active"}
+                                    style={{ width: 80 }}
+                                />
+                            ),
+                        },
+                    ]}
+                />
+            </Card>
 
             <Card title="Sản phẩm mới thêm" loading={loading}>
                 <Table

@@ -37,7 +37,7 @@ const Voucher = () => {
     const fetchVouchers = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:3001/api/vouchers');
+            const response = await axios.get('http://localhost:3002/api/vouchers');
             const vouchersData = response.data.data || [];
             setVouchers(vouchersData);
             setError(null);
@@ -66,14 +66,25 @@ const Voucher = () => {
             return;
         }
         try {
-            const voucherData = {
-                ...newVoucher,
-                discount_value: Number(newVoucher.discount_value),
-                min_order_value: Number(newVoucher.min_order_value),
-                usage_limit: Number(newVoucher.usage_limit)
-            };
 
-            const response = await axios.post('http://localhost:3001/api/vouchers/add', voucherData);
+            const voucherData = {
+                code: newVoucher.code,
+                label: newVoucher.code,
+                description: newVoucher.description,
+                discount: Number(newVoucher.discount_value),
+                maxDiscount: Number(newVoucher.discount_value),
+                type: newVoucher.discount_type,
+                minOrderAmount: Number(newVoucher.min_order_value),
+                startDate: new Date(newVoucher.start_date),
+                expireDate: new Date(newVoucher.end_date),
+                usageLimitPerUser: Number(newVoucher.usage_limit),
+                totalUsageLimit: Number(newVoucher.usage_limit),
+                createdBy: 'admin',
+                status: newVoucher.status,
+            };
+            console.log("📦 Data gửi đi:", voucherData);
+
+            const response = await axios.post('http://localhost:3002/api/vouchers/add', voucherData);
             const newVoucherData = response.data.data;
             setVouchers(prevVouchers => [...prevVouchers, newVoucherData]);
             setShowAddForm(false);
@@ -89,17 +100,19 @@ const Voucher = () => {
                 status: 'active'
             });
             alert('Thêm voucher thành công!');
+
         } catch (err) {
             alert('Không thể thêm voucher: ' + (err.response?.data?.message || 'Lỗi không xác định'));
             console.error('Error adding voucher:', err);
         }
+
     };
 
     // Delete voucher
     const handleDelete = async (code) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa voucher này?')) {
             try {
-                await axios.delete(`http://localhost:3001/api/vouchers/${code}`);
+                await axios.delete(`http://localhost:3002/api/vouchers/${code}`);
                 setVouchers(vouchers.filter(v => v.code !== code));
                 alert('Xóa voucher thành công!');
             } catch (err) {
@@ -115,7 +128,7 @@ const Voucher = () => {
         setLoadingDetail(true);
         setErrorDetail(null);
         try {
-            const response = await axios.get(`http://localhost:3001/api/vouchers/${code}`);
+            const response = await axios.get(`http://localhost:3002/api/vouchers/${code}`);
             const voucherDetail = response.data.data;
             setSelectedVoucher(voucherDetail);
         } catch (err) {
@@ -151,16 +164,26 @@ const Voucher = () => {
             return;
         }
         try {
+ 
             const voucherData = {
-                ...newVoucher,
-                discount_value: Number(newVoucher.discount_value),
-                min_order_value: Number(newVoucher.min_order_value),
-                usage_limit: Number(newVoucher.usage_limit)
+                code: newVoucher.code,
+                label: newVoucher.code,
+                description: newVoucher.description,
+                discount: Number(newVoucher.discount_value),
+                maxDiscount: Number(newVoucher.discount_value),
+                type: newVoucher.discount_type,
+                minOrderAmount: Number(newVoucher.min_order_value),
+                startDate: new Date(newVoucher.start_date),
+                expireDate: new Date(newVoucher.end_date),
+                usageLimitPerUser: Number(newVoucher.usage_limit),
+                totalUsageLimit: Number(newVoucher.usage_limit),
+                createdBy: 'admin',
+                status: newVoucher.status,
             };
 
             const response = await axios.put(`http://localhost:3002/api/vouchers/${editingVoucher.code}`, voucherData);
             const updatedVoucherData = response.data.data;
-            setVouchers(prevVouchers => 
+            setVouchers(prevVouchers =>
                 prevVouchers.map(v => v.code === editingVoucher.code ? updatedVoucherData : v)
             );
             setShowEditForm(false);
@@ -201,8 +224,8 @@ const Voucher = () => {
         <div className="voucher-container">
             <div className="voucher-header">
                 <h2>Quản lý voucher</h2>
-                <button 
-                    className="btn btn-add" 
+                <button
+                    className="btn btn-add"
                     onClick={() => setShowAddForm(true)}
                 >
                     Thêm
@@ -312,8 +335,8 @@ const Voucher = () => {
                         </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Lưu</button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="btn btn-cancel"
                                 onClick={() => setShowAddForm(false)}
                             >
@@ -427,8 +450,8 @@ const Voucher = () => {
                         </div>
                         <div className="form-buttons">
                             <button type="submit" className="btn btn-submit">Cập nhật</button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="btn btn-cancel"
                                 onClick={() => setShowEditForm(false)}
                             >
@@ -451,16 +474,48 @@ const Voucher = () => {
                         ) : selectedVoucher ? (
                             <>
                                 <h3>Chi tiết voucher</h3>
-                                <p><b>Mã voucher:</b> {selectedVoucher.code || 'N/A'}</p>
-                                <p><b>Loại giảm giá:</b> {selectedVoucher.discount_type === 'fixed' ? 'Giảm giá cố định' : 'Miễn phí vận chuyển'}</p>
-                                <p><b>Giá trị giảm giá:</b> {selectedVoucher.discount_value.toLocaleString('vi-VN')} VNĐ</p>
-                                <p><b>Giá trị đơn hàng tối thiểu:</b> {selectedVoucher.min_order_value.toLocaleString('vi-VN')} VNĐ</p>
-                                <p><b>Giới hạn sử dụng:</b> {selectedVoucher.usage_limit}</p>
-                                <p><b>Đã sử dụng:</b> {selectedVoucher.used_count || 0}</p>
-                                <p><b>Ngày bắt đầu:</b> {new Date(selectedVoucher.start_date).toLocaleDateString('vi-VN')}</p>
-                                <p><b>Ngày kết thúc:</b> {new Date(selectedVoucher.end_date).toLocaleDateString('vi-VN')}</p>
+
+                                <p><b>Loại giảm giá:</b>
+                                    {selectedVoucher.type === 'percentage' ? 'Giảm theo phần trăm' :
+                                        selectedVoucher.type === 'shipping' ? 'Miễn phí vận chuyển' :
+                                            'Giảm giá cố định'}
+                                </p>
+
+                                <p><b>Giá trị giảm giá:</b>
+                                    {selectedVoucher.discount
+                                        ? `${(selectedVoucher.discount * 100).toLocaleString('vi-VN')}%`
+                                        : selectedVoucher.maxDiscount
+                                            ? `${selectedVoucher.maxDiscount.toLocaleString('vi-VN')} VNĐ`
+                                            : 'N/A'}
+                                </p>
+
+                                <p><b>Giá trị đơn hàng tối thiểu:</b>
+                                    {selectedVoucher.minOrderAmount?.toLocaleString('vi-VN') || 'N/A'} VNĐ
+                                </p>
+
+                                <p><b>Giới hạn sử dụng:</b>
+                                    {selectedVoucher.totalUsageLimit ?? 'Không giới hạn'}
+                                </p>
+
+                                <p><b>Đã sử dụng:</b>
+                                    {selectedVoucher.usedCount ?? 0}
+                                </p>
+
+                                <p><b>Ngày bắt đầu:</b>
+                                    {selectedVoucher.startDate
+                                        ? new Date(selectedVoucher.startDate).toLocaleDateString('vi-VN')
+                                        : 'Không rõ'}
+                                </p>
+
+                                <p><b>Ngày kết thúc:</b>
+                                    {selectedVoucher.expireDate
+                                        ? new Date(selectedVoucher.expireDate).toLocaleDateString('vi-VN')
+                                        : 'Không rõ'}
+                                </p>
+
                                 <p><b>Mô tả:</b> {selectedVoucher.description || 'Không có mô tả'}</p>
                                 <p><b>Trạng thái:</b> {selectedVoucher.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}</p>
+
                                 <button className="btn btn-cancel" onClick={() => setShowDetail(false)}>Đóng</button>
                             </>
                         ) : null}
@@ -483,16 +538,23 @@ const Voucher = () => {
                             <th>Thao tác</th>
                         </tr>
                     </thead>
+             
                     <tbody>
                         {currentVouchers.map(voucher => (
-                            <tr key={voucher.code} onClick={() => handleShowDetail(voucher.code)} style={{cursor: 'pointer'}}>
+                            <tr key={voucher.code} onClick={() => handleShowDetail(voucher.code)} style={{ cursor: 'pointer' }}>
                                 <td>{voucher.code}</td>
-                                <td>{voucher.discount_type === 'fixed' ? 'Giảm giá cố định' : 'Miễn phí vận chuyển'}</td>
-                                <td>{voucher.discount_value.toLocaleString('vi-VN')} VNĐ</td>
-                                <td>{voucher.min_order_value.toLocaleString('vi-VN')} VNĐ</td>
-                                <td>{voucher.used_count || 0}/{voucher.usage_limit}</td>
-                                <td>{new Date(voucher.start_date).toLocaleDateString('vi-VN')}</td>
-                                <td>{new Date(voucher.end_date).toLocaleDateString('vi-VN')}</td>
+                                <td>
+                                    {{
+                                        fixed: 'Giảm giá cố định',
+                                        shipping: 'Miễn phí vận chuyển',
+                                        percentage: 'Giảm theo %'
+                                    }[voucher.type] || 'Không xác định'}
+                                </td>
+                                <td>{voucher.discount != null ? voucher.discount.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                                <td>{voucher.minOrderAmount != null ? voucher.minOrderAmount.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                                <td>{voucher.usedCount || 0}/{voucher.usageLimitPerUser || 0}</td>
+                                <td>{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                <td>{voucher.expireDate ? new Date(voucher.expireDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
                                 <td>
                                     <span className={`status ${voucher.status === 'active' ? 'active' : 'inactive'}`}>
                                         {voucher.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}
@@ -500,19 +562,10 @@ const Voucher = () => {
                                 </td>
                                 <td>
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
-                                        <button
-                                            className="btn btn-edit"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEdit(voucher);
-                                            }}
-                                        >
+                                        <button className="btn btn-edit" onClick={(e) => { e.stopPropagation(); handleEdit(voucher); }}>
                                             Sửa
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(voucher.code)}
-                                            className="btn btn-delete"
-                                        >
+                                        <button onClick={() => handleDelete(voucher.code)} className="btn btn-delete">
                                             Xóa
                                         </button>
                                     </div>
@@ -520,12 +573,14 @@ const Voucher = () => {
                             </tr>
                         ))}
                     </tbody>
+
+
                 </table>
             </div>
 
             {/* Pagination controls */}
             <div className="pagination">
-                <button 
+                <button
                     className="btn btn-pagination"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -541,7 +596,7 @@ const Voucher = () => {
                         {index + 1}
                     </button>
                 ))}
-                <button 
+                <button
                     className="btn btn-pagination"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
