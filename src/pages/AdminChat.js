@@ -9,6 +9,7 @@ const AdminChat = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const [chatError, setChatError] = useState(null);
   const messagesEndRef = useRef(null);
   const currentChatIdRef = useRef(null);
   const socketRef = useRef(null);
@@ -25,7 +26,11 @@ const AdminChat = () => {
 
     socketRef.current.on('new message', (msg) => {
       if (msg.chatId === currentChatIdRef.current) {
-        setMessages(prev => [...prev, msg.message]);
+        // Chỉ thêm tin nhắn mới nếu không phải tin nhắn của chính mình
+        const isOwnMessage = msg.message.sender === adminId || msg.message.senderId === adminId;
+        if (!isOwnMessage) {
+          setMessages(prev => [...prev, msg.message]);
+        }
       }
     });
 
@@ -58,58 +63,79 @@ const AdminChat = () => {
       }
     });
 
-
-
     return () => {
       socketRef.current.disconnect();
     };
   }, []);
 
   // Lấy danh sách chat
+  const fetchChatList = async () => {
+    try {
+      setChatError(null); // Reset error
+      const response = await axios.get('http://localhost:3002/api/chats');
+      const chats = response.data.data;
+
+      const filteredChats = chats
+        .filter(chat => chat.participants.some(p => p._id === adminId))
+        .map(chat => {
+          const otherUser = chat.participants.find(p => p._id !== adminId);
+          return {
+            chatId: chat._id,
+            userId: otherUser?._id,
+            userName: otherUser?.name || 'Unknown User',
+            userAvatar: otherUser?.avatar || 'https://via.placeholder.com/40',
+            lastMessage: chat.lastMessage?.content || 'Chưa có tin nhắn',
+          };
+        });
+
+      setChatList(filteredChats);
+    } catch (err) {
+      console.error('❌ Lỗi load danh sách chat:', err);
+      // Hiển thị thông báo lỗi cho user
+      if (err.response?.status === 500) {
+        console.error('Backend error - User model not registered');
+        setChatError('Lỗi kết nối backend. Vui lòng thử lại sau.');
+        setChatList([]); // Set empty array để tránh crash
+      } else {
+        setChatError('Không thể tải danh sách chat');
+      }
+    }
+  };
+
   useEffect(() => {
-    axios.get('http://localhost:3002/api/chats')
-      .then(res => {
-        const chats = res.data.data;
+    fetchChatList();
+  }, []);
 
-        const filteredChats = chats
-          .filter(chat => chat.participants.some(p => p._id === adminId))
-          .map(chat => {
-            const otherUser = chat.participants.find(p => p._id !== adminId);
-            return {
-              chatId: chat._id,
-              userId: otherUser?._id,
-              userName: otherUser?.name,
-              userAvatar: otherUser?.avatar,
-              lastMessage: chat.lastMessage?.content || 'Chưa có tin nhắn',
-            };
-          });
-
-        setChatList(filteredChats);
-      })
-      .catch(err => console.error('❌ Lỗi load danh sách chat:', err));
+  // Refresh chat list khi có tin nhắn mới
+  useEffect(() => {
+    socketRef.current?.on('new message', () => {
+      fetchChatList();
+    });
   }, []);
 
   // Lấy tin nhắn khi chọn chat
   useEffect(() => {
     if (!selectedChat) return;
 
-    // currentChatIdRef.current = selectedChat.chatId;
-
     const chatId = selectedChat.chatId;
     currentChatIdRef.current = chatId;
     socketRef.current.emit('join chat', chatId);
 
-    axios.get(`http://localhost:3002/api/chats/${selectedChat.chatId}`)
+    axios.get(`http://localhost:3002/api/chats/${chatId}`)
       .then(res => {
         setMessages(res.data.data.messages || []);
       })
-      .catch(err => console.error('❌ Lỗi lấy tin nhắn:', err));
+      .catch(err => console.error('❌ Lỗi load tin nhắn:', err));
   }, [selectedChat]);
 
-  // Cuộn xuống cuối khi có tin nhắn mới
+  // Auto scroll xuống tin nhắn mới nhất
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Kiểm tra đăng nhập - đặt ở cuối để không vi phạm React Hooks rules
+  const isLoggedIn = localStorage.getItem('token');
+  if (!isLoggedIn) return null;
 
   // Gửi tin nhắn
   const sendMessage = async () => {
@@ -125,21 +151,27 @@ const AdminChat = () => {
     };
 
     try {
-      // await axios.post('http://localhost:3001/api/chats/message', msgData);
+      // Gửi tin nhắn qua API
+      const response = await axios.post('http://localhost:3002/api/chats/message', msgData);
+      
+      // Tạo tin nhắn mới để hiển thị ngay lập tức
+      const sentMsg = {
+        _id: response.data.data._id,
+        sender: adminId,
+        senderId: adminId,
+        content: message,
+        type: 'text',
+        timestamp: new Date(),
+        isRead: false,
+        chatId: selectedChat.chatId
+      };
 
-      // const sentMsg = {
-      //   sender: adminId,
-      //   senderId: adminId,
-      //   content: message,
-      //   type: 'text',
-      //   timestamp: new Date(),
-      //   isRead: false,
-      //   chatId: selectedChat.chatId
-      // };
-
+      // Cập nhật UI ngay lập tức
+      setMessages(prev => [...prev, sentMsg]);
+      
+      // Gửi qua socket để thông báo cho user khác
       socketRef.current.emit('send message', msgData);
-
-      // setMessages(prev => [...prev, sentMsg]);
+      
       setMessage('');
     } catch (err) {
       console.error('❌ Gửi tin nhắn lỗi:', err);
@@ -165,20 +197,39 @@ const AdminChat = () => {
     if (choice === '4' && isAdmin) deleteMessage(msg._id);
   };
 
-  const reactToMessage = (messageId, emoji) => {
-    socketRef.current.emit('reaction message', {
-      chatId: selectedChat.chatId,
-      messageId,
-      userId: adminId,
-      emoji
-    });
+  const reactToMessage = async (messageId, emoji) => {
+    try {
+      // Gọi API để cập nhật reaction
+      await axios.post(`http://localhost:3002/api/chats/message/${messageId}/reaction`, {
+        userId: adminId,
+        emoji: emoji
+      });
+      
+      // Gửi qua socket để thông báo real-time
+      socketRef.current.emit('reaction message', {
+        chatId: selectedChat.chatId,
+        messageId,
+        userId: adminId,
+        emoji
+      });
+    } catch (err) {
+      console.error('❌ Lỗi reaction:', err);
+    }
   };
 
-  const deleteMessage = (messageId) => {
-    socketRef.current.emit('delete message', {
-      chatId: selectedChat.chatId,
-      messageId
-    });
+  const deleteMessage = async (messageId) => {
+    try {
+      // Gọi API để xóa tin nhắn
+      await axios.delete(`http://localhost:3002/api/chats/message/${messageId}`);
+      
+      // Gửi qua socket để thông báo real-time
+      socketRef.current.emit('delete message', {
+        chatId: selectedChat.chatId,
+        messageId
+      });
+    } catch (err) {
+      console.error('❌ Lỗi xóa tin nhắn:', err);
+    }
   };
 
   const handleDeleteChat = async () => {
@@ -212,19 +263,28 @@ const AdminChat = () => {
             <div className="chat-box">
               <div className="user-list">
                 <h4>Người dùng:</h4>
-                {chatList.map((chat) => (
-                  <div
-                    key={chat.chatId}
-                    className="user-item"
-                    onClick={() => setSelectedChat(chat)}
-                  >
-                    <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
-                    <div>
-                      <strong>{chat.userName}</strong> <br />
-                      <small>{chat.lastMessage}</small>
-                    </div>
+                {chatError ? (
+                  <div className="chat-error">
+                    <p>{chatError}</p>
+                    <button onClick={fetchChatList} className="retry-btn">
+                      Thử lại
+                    </button>
                   </div>
-                ))}
+                ) : (
+                  chatList.map((chat) => (
+                    <div
+                      key={chat.chatId}
+                      className="user-item"
+                      onClick={() => setSelectedChat(chat)}
+                    >
+                      <img src={chat.userAvatar} alt={chat.userName} className="avatar" />
+                      <div>
+                        <strong>{chat.userName}</strong> <br />
+                        <small>{chat.lastMessage}</small>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           ) : (

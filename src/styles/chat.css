@@ -75,6 +75,36 @@
   margin-bottom: 4px;
 }
 
+/* ERROR MESSAGE */
+.chat-error {
+  padding: 20px;
+  text-align: center;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin: 10px;
+}
+
+.chat-error p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+
+.retry-btn {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.3s;
+}
+
+.retry-btn:hover {
+  background: #b71c1c;
+}
+
 /* NỘI DUNG CHAT */
 .chat-content {
   flex: 1;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
-import axios from 'axios';
+import { authAPI } from '../config/api';
 import '../styles/LogoutButton.css';
 
 const LogoutButton = () => {
@@ -10,12 +10,7 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:3001/api/logout', {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await authAPI.logout();
     } catch (err) {
       // ignore error, still remove token
     }
