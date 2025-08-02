@@ -11,13 +11,17 @@ const Voucher = () => {
     const [editingVoucher, setEditingVoucher] = useState(null);
     const [newVoucher, setNewVoucher] = useState({
         code: '',
+        label: '',
         description: '',
-        discount_type: 'fixed', // 'fixed' hoặc 'shipping'
-        discount_value: '',
-        min_order_value: '',
-        start_date: '',
-        end_date: '',
-        usage_limit: '',
+        discount: '',
+        maxDiscount: '',
+        type: 'percentage', // 'percentage' hoặc 'fixed'
+        minOrderAmount: '',
+        startDate: '',
+        expireDate: '',
+        usageLimitPerUser: '',
+        totalUsageLimit: '',
+        isGlobal: false,
         status: 'active'
     });
     const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -66,19 +70,18 @@ const Voucher = () => {
             return;
         }
         try {
-
             const voucherData = {
                 code: newVoucher.code,
                 label: newVoucher.code,
                 description: newVoucher.description,
-                discount: Number(newVoucher.discount_value),
-                maxDiscount: Number(newVoucher.discount_value),
-                type: newVoucher.discount_type,
-                minOrderAmount: Number(newVoucher.min_order_value),
-                startDate: new Date(newVoucher.start_date),
-                expireDate: new Date(newVoucher.end_date),
-                usageLimitPerUser: Number(newVoucher.usage_limit),
-                totalUsageLimit: Number(newVoucher.usage_limit),
+                discount: Number(newVoucher.discount),
+                maxDiscount: Number(newVoucher.discount),
+                type: newVoucher.type,
+                minOrderAmount: Number(newVoucher.minOrderAmount),
+                startDate: new Date(newVoucher.startDate),
+                expireDate: new Date(newVoucher.expireDate),
+                usageLimitPerUser: Number(newVoucher.usageLimitPerUser),
+                totalUsageLimit: Number(newVoucher.usageLimitPerUser),
                 createdBy: 'admin',
                 status: newVoucher.status,
             };
@@ -90,13 +93,17 @@ const Voucher = () => {
             setShowAddForm(false);
             setNewVoucher({
                 code: '',
+                label: '',
                 description: '',
-                discount_type: 'fixed',
-                discount_value: '',
-                min_order_value: '',
-                start_date: '',
-                end_date: '',
-                usage_limit: '',
+                discount: '',
+                maxDiscount: '',
+                type: 'percentage',
+                minOrderAmount: '',
+                startDate: '',
+                expireDate: '',
+                usageLimitPerUser: '',
+                totalUsageLimit: '',
+                isGlobal: false,
                 status: 'active'
             });
             alert('Thêm voucher thành công!');
@@ -144,13 +151,17 @@ const Voucher = () => {
         setEditingVoucher(voucher);
         setNewVoucher({
             code: voucher.code || '',
+            label: voucher.label || '',
             description: voucher.description || '',
-            discount_type: voucher.discount_type || 'fixed',
-            discount_value: voucher.discount_value || '',
-            min_order_value: voucher.min_order_value || '',
-            start_date: voucher.start_date ? new Date(voucher.start_date).toISOString().split('T')[0] : '',
-            end_date: voucher.end_date ? new Date(voucher.end_date).toISOString().split('T')[0] : '',
-            usage_limit: voucher.usage_limit || '',
+            discount: voucher.discount || '',
+            maxDiscount: voucher.maxDiscount || '',
+            type: voucher.type || 'percentage',
+            minOrderAmount: voucher.minOrderAmount || '',
+            startDate: voucher.startDate ? new Date(voucher.startDate).toISOString().split('T')[0] : '',
+            expireDate: voucher.expireDate ? new Date(voucher.expireDate).toISOString().split('T')[0] : '',
+            usageLimitPerUser: voucher.usageLimitPerUser || '',
+            totalUsageLimit: voucher.totalUsageLimit || '',
+            isGlobal: voucher.isGlobal || false,
             status: voucher.status || 'active'
         });
         setShowEditForm(true);
@@ -169,14 +180,14 @@ const Voucher = () => {
                 code: newVoucher.code,
                 label: newVoucher.code,
                 description: newVoucher.description,
-                discount: Number(newVoucher.discount_value),
-                maxDiscount: Number(newVoucher.discount_value),
-                type: newVoucher.discount_type,
-                minOrderAmount: Number(newVoucher.min_order_value),
-                startDate: new Date(newVoucher.start_date),
-                expireDate: new Date(newVoucher.end_date),
-                usageLimitPerUser: Number(newVoucher.usage_limit),
-                totalUsageLimit: Number(newVoucher.usage_limit),
+                discount: Number(newVoucher.discount),
+                maxDiscount: Number(newVoucher.discount),
+                type: newVoucher.type,
+                minOrderAmount: Number(newVoucher.minOrderAmount),
+                startDate: new Date(newVoucher.startDate),
+                expireDate: new Date(newVoucher.expireDate),
+                usageLimitPerUser: Number(newVoucher.usageLimitPerUser),
+                totalUsageLimit: Number(newVoucher.usageLimitPerUser),
                 createdBy: 'admin',
                 status: newVoucher.status,
             };
@@ -190,13 +201,17 @@ const Voucher = () => {
             setEditingVoucher(null);
             setNewVoucher({
                 code: '',
+                label: '',
                 description: '',
-                discount_type: 'fixed',
-                discount_value: '',
-                min_order_value: '',
-                start_date: '',
-                end_date: '',
-                usage_limit: '',
+                discount: '',
+                maxDiscount: '',
+                type: 'percentage',
+                minOrderAmount: '',
+                startDate: '',
+                expireDate: '',
+                usageLimitPerUser: '',
+                totalUsageLimit: '',
+                isGlobal: false,
                 status: 'active'
             });
             alert('Cập nhật voucher thành công!');
@@ -250,8 +265,8 @@ const Voucher = () => {
                         <div className="form-group">
                             <label>Loại giảm giá:</label>
                             <select
-                                name="discount_type"
-                                value={newVoucher.discount_type}
+                                name="type"
+                                value={newVoucher.type}
                                 onChange={handleInputChange}
                                 required
                             >
@@ -263,8 +278,8 @@ const Voucher = () => {
                             <label>Giá trị giảm giá:</label>
                             <input
                                 type="number"
-                                name="discount_value"
-                                value={newVoucher.discount_value}
+                                name="discount"
+                                value={newVoucher.discount}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -274,8 +289,8 @@ const Voucher = () => {
                             <label>Giá trị đơn hàng tối thiểu:</label>
                             <input
                                 type="number"
-                                name="min_order_value"
-                                value={newVoucher.min_order_value}
+                                name="minOrderAmount"
+                                value={newVoucher.minOrderAmount}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -285,8 +300,8 @@ const Voucher = () => {
                             <label>Giới hạn sử dụng:</label>
                             <input
                                 type="number"
-                                name="usage_limit"
-                                value={newVoucher.usage_limit}
+                                name="usageLimitPerUser"
+                                value={newVoucher.usageLimitPerUser}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -296,8 +311,8 @@ const Voucher = () => {
                             <label>Ngày bắt đầu:</label>
                             <input
                                 type="date"
-                                name="start_date"
-                                value={newVoucher.start_date}
+                                name="startDate"
+                                value={newVoucher.startDate}
                                 onChange={handleInputChange}
                                 required
                             />
@@ -306,8 +321,8 @@ const Voucher = () => {
                             <label>Ngày kết thúc:</label>
                             <input
                                 type="date"
-                                name="end_date"
-                                value={newVoucher.end_date}
+                                name="expireDate"
+                                value={newVoucher.expireDate}
                                 onChange={handleInputChange}
                                 required
                             />
@@ -365,8 +380,8 @@ const Voucher = () => {
                         <div className="form-group">
                             <label>Loại giảm giá:</label>
                             <select
-                                name="discount_type"
-                                value={newVoucher.discount_type}
+                                name="type"
+                                value={newVoucher.type}
                                 onChange={handleInputChange}
                                 required
                             >
@@ -378,8 +393,8 @@ const Voucher = () => {
                             <label>Giá trị giảm giá:</label>
                             <input
                                 type="number"
-                                name="discount_value"
-                                value={newVoucher.discount_value}
+                                name="discount"
+                                value={newVoucher.discount}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -389,8 +404,8 @@ const Voucher = () => {
                             <label>Giá trị đơn hàng tối thiểu:</label>
                             <input
                                 type="number"
-                                name="min_order_value"
-                                value={newVoucher.min_order_value}
+                                name="minOrderAmount"
+                                value={newVoucher.minOrderAmount}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -400,8 +415,8 @@ const Voucher = () => {
                             <label>Giới hạn sử dụng:</label>
                             <input
                                 type="number"
-                                name="usage_limit"
-                                value={newVoucher.usage_limit}
+                                name="usageLimitPerUser"
+                                value={newVoucher.usageLimitPerUser}
                                 onChange={handleInputChange}
                                 required
                                 min="0"
@@ -411,8 +426,8 @@ const Voucher = () => {
                             <label>Ngày bắt đầu:</label>
                             <input
                                 type="date"
-                                name="start_date"
-                                value={newVoucher.start_date}
+                                name="startDate"
+                                value={newVoucher.startDate}
                                 onChange={handleInputChange}
                                 required
                             />
@@ -421,8 +436,8 @@ const Voucher = () => {
                             <label>Ngày kết thúc:</label>
                             <input
                                 type="date"
-                                name="end_date"
-                                value={newVoucher.end_date}
+                                name="expireDate"
+                                value={newVoucher.expireDate}
                                 onChange={handleInputChange}
                                 required
                             />
@@ -474,45 +489,20 @@ const Voucher = () => {
                         ) : selectedVoucher ? (
                             <>
                                 <h3>Chi tiết voucher</h3>
-
-                                <p><b>Loại giảm giá:</b>
-                                    {selectedVoucher.type === 'percentage' ? 'Giảm theo phần trăm' :
-                                        selectedVoucher.type === 'shipping' ? 'Miễn phí vận chuyển' :
-                                            'Giảm giá cố định'}
+                                <p><b>Mã voucher:</b> {selectedVoucher.code || 'N/A'}</p>
+                                <p><b>Nhãn:</b> {selectedVoucher.label || 'N/A'}</p>
+                                <p><b>Loại:</b> {selectedVoucher.type === 'percentage' ? 'Phần trăm' : 'Cố định'}</p>
+                                <p><b>Giá trị giảm:</b> {selectedVoucher.type === 'percentage'
+                                    ? `${selectedVoucher.discount ? selectedVoucher.discount * 100 : 0}%`
+                                    : `${selectedVoucher.discount ? selectedVoucher.discount.toLocaleString('vi-VN') : 0} VNĐ`}
                                 </p>
-
-                                <p><b>Giá trị giảm giá:</b>
-                                    {selectedVoucher.discount
-                                        ? `${(selectedVoucher.discount * 100).toLocaleString('vi-VN')}%`
-                                        : selectedVoucher.maxDiscount
-                                            ? `${selectedVoucher.maxDiscount.toLocaleString('vi-VN')} VNĐ`
-                                            : 'N/A'}
-                                </p>
-
-                                <p><b>Giá trị đơn hàng tối thiểu:</b>
-                                    {selectedVoucher.minOrderAmount?.toLocaleString('vi-VN') || 'N/A'} VNĐ
-                                </p>
-
-                                <p><b>Giới hạn sử dụng:</b>
-                                    {selectedVoucher.totalUsageLimit ?? 'Không giới hạn'}
-                                </p>
-
-                                <p><b>Đã sử dụng:</b>
-                                    {selectedVoucher.usedCount ?? 0}
-                                </p>
-
-                                <p><b>Ngày bắt đầu:</b>
-                                    {selectedVoucher.startDate
-                                        ? new Date(selectedVoucher.startDate).toLocaleDateString('vi-VN')
-                                        : 'Không rõ'}
-                                </p>
-
-                                <p><b>Ngày kết thúc:</b>
-                                    {selectedVoucher.expireDate
-                                        ? new Date(selectedVoucher.expireDate).toLocaleDateString('vi-VN')
-                                        : 'Không rõ'}
-                                </p>
-
+                                <p><b>Giảm tối đa:</b> {selectedVoucher.maxDiscount ? selectedVoucher.maxDiscount.toLocaleString('vi-VN') : 0} VNĐ</p>
+                                <p><b>Giá trị đơn hàng tối thiểu:</b> {selectedVoucher.minOrderAmount ? selectedVoucher.minOrderAmount.toLocaleString('vi-VN') : 0} VNĐ</p>
+                                <p><b>Giới hạn mỗi người dùng:</b> {selectedVoucher.usageLimitPerUser || 0}</p>
+                                <p><b>Tổng lượt sử dụng:</b> {selectedVoucher.totalUsageLimit || 0}</p>
+                                <p><b>Đã sử dụng:</b> {selectedVoucher.usedCount || 0}</p>
+                                <p><b>Ngày bắt đầu:</b> {selectedVoucher.startDate ? new Date(selectedVoucher.startDate).toLocaleDateString('vi-VN') : ''}</p>
+                                <p><b>Ngày hết hạn:</b> {selectedVoucher.expireDate ? new Date(selectedVoucher.expireDate).toLocaleDateString('vi-VN') : ''}</p>
                                 <p><b>Mô tả:</b> {selectedVoucher.description || 'Không có mô tả'}</p>
                                 <p><b>Trạng thái:</b> {selectedVoucher.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}</p>
 
@@ -528,12 +518,14 @@ const Voucher = () => {
                     <thead>
                         <tr>
                             <th>Mã voucher</th>
-                            <th>Loại giảm giá</th>
+                            <th>Nhãn</th>
+                            <th>Loại</th>
                             <th>Giá trị giảm</th>
+                            <th>Giảm tối đa</th>
                             <th>Giá trị tối thiểu</th>
                             <th>Đã sử dụng</th>
                             <th>Ngày bắt đầu</th>
-                            <th>Ngày kết thúc</th>
+                            <th>Ngày hết hạn</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
                         </tr>
@@ -543,18 +535,18 @@ const Voucher = () => {
                         {currentVouchers.map(voucher => (
                             <tr key={voucher.code} onClick={() => handleShowDetail(voucher.code)} style={{ cursor: 'pointer' }}>
                                 <td>{voucher.code}</td>
+                                <td>{voucher.label}</td>
+                                <td>{voucher.type === 'percentage' ? 'Phần trăm' : 'Cố định'}</td>
                                 <td>
-                                    {{
-                                        fixed: 'Giảm giá cố định',
-                                        shipping: 'Miễn phí vận chuyển',
-                                        percentage: 'Giảm theo %'
-                                    }[voucher.type] || 'Không xác định'}
+                                    {voucher.type === 'percentage'
+                                        ? `${voucher.discount ? voucher.discount * 100 : 0}%`
+                                        : `${voucher.discount ? voucher.discount.toLocaleString('vi-VN') : 0} VNĐ`}
                                 </td>
-                                <td>{voucher.discount != null ? voucher.discount.toLocaleString('vi-VN') : '0'} VNĐ</td>
-                                <td>{voucher.minOrderAmount != null ? voucher.minOrderAmount.toLocaleString('vi-VN') : '0'} VNĐ</td>
-                                <td>{voucher.usedCount || 0}/{voucher.usageLimitPerUser || 0}</td>
-                                <td>{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
-                                <td>{voucher.expireDate ? new Date(voucher.expireDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                <td>{voucher.maxDiscount ? voucher.maxDiscount.toLocaleString('vi-VN') : 0} VNĐ</td>
+                                <td>{voucher.minOrderAmount ? voucher.minOrderAmount.toLocaleString('vi-VN') : 0} VNĐ</td>
+                                <td>{voucher.usedCount || 0}/{voucher.totalUsageLimit || 0}</td>
+                                <td>{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : ''}</td>
+                                <td>{voucher.expireDate ? new Date(voucher.expireDate).toLocaleDateString('vi-VN') : ''}</td>
                                 <td>
                                     <span className={`status ${voucher.status === 'active' ? 'active' : 'inactive'}`}>
                                         {voucher.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}
