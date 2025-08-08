@@ -215,7 +215,7 @@ const Order = () => {
                   </td>
                   <td>{order.userId?._id || order.userId || ''}</td>
                   <td>{firstItem.name || ''}</td>
-                  <td>{firstItem.quantity || ''}</td>
+                  <td>{firstItem.purchaseQuantity || ''}</td>
                   <td>{firstItem.price ? firstItem.price.toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                   <td>{order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
                   <td>{voucherDiscount ? voucherDiscount.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
@@ -333,7 +333,7 @@ const Order = () => {
               <div><b>Địa chỉ:</b> {modalOrder.shippingAddress || 'Không có địa chỉ'}</div>
               <div><b>Thông tin sản phẩm:</b> {modalOrder.items && modalOrder.items.map((item, idx) => (
                 <span key={item.productId || idx}>
-                  {item.name} (SL: {item.quantity}, Size: {item.size || 'N/A'}, Giá: {item.price ? item.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}){idx < modalOrder.items.length - 1 ? ', ' : ''}
+                  {item.name} (SL: {item.purchaseQuantity}, Size: {item.size || 'N/A'}, Giá: {item.price ? item.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}){idx < modalOrder.items.length - 1 ? ', ' : ''}
                 </span>
               ))}</div>
               {modalOrder.voucher && (

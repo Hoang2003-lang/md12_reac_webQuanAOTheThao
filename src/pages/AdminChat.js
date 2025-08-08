@@ -152,22 +152,22 @@ const AdminChat = () => {
 
     try {
       // Gửi tin nhắn qua API
-      const response = await axios.post('http://localhost:3002/api/chats/message', msgData);
+      // const response = await axios.post('http://localhost:3002/api/chats/message', msgData);
       
       // Tạo tin nhắn mới để hiển thị ngay lập tức
-      const sentMsg = {
-        _id: response.data.data._id,
-        sender: adminId,
-        senderId: adminId,
-        content: message,
-        type: 'text',
-        timestamp: new Date(),
-        isRead: false,
-        chatId: selectedChat.chatId
-      };
+      // const sentMsg = {
+      //   _id: response.data.data._id,
+      //   sender: adminId,
+      //   senderId: adminId,
+      //   content: message,
+      //   type: 'text',
+      //   timestamp: new Date(),
+      //   isRead: false,
+      //   chatId: selectedChat.chatId
+      // };
 
       // Cập nhật UI ngay lập tức
-      setMessages(prev => [...prev, sentMsg]);
+      // setMessages(prev => [...prev, sentMsg]);
       
       // Gửi qua socket để thông báo cho user khác
       socketRef.current.emit('send message', msgData);
