@@ -32,7 +32,8 @@ const Dashboard = () => {
         totalProducts: 0,
         totalUsers: 0,
         totalRevenue: 0,
-        lowStockProducts: []
+        lowStockProducts: [],
+        todayOrders: 0,
     });
     const [recentProducts, setRecentProducts] = useState([]);
     const [topProducts, setTopProducts] = useState([]);
@@ -57,12 +58,19 @@ const Dashboard = () => {
             const totalRevenue = data
                 .filter(o => o.status === 'delivered')
                 .reduce((sum, o) => sum + Number(o.finalTotal || 0), 0);
-
+            const today = dayjs().startOf('day');
+            const todayOrders = data
+                .filter(o => o.status === 'delivered' && dayjs(o.createdAt).isAfter(today))
+                .reduce((sum, o) => {
+                    const items = o.items || [];
+                    return sum + items.reduce((q, item) => q + (item.purchaseQuantity || 0), 0);
+                }, 0);
             setStats({
                 totalProducts,
                 totalUsers,
                 totalRevenue,
-                lowStockProducts
+                lowStockProducts,
+                todayOrders,
             });
 
             const productSalesMap = {};
@@ -116,7 +124,7 @@ const Dashboard = () => {
         <div>
             <h1 style={{ marginBottom: 24 }}>Tổng quan hệ thống</h1>
             <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
+                <Col span={4}>
                     <Card loading={loading}>
                         <Statistic
                             title="Tổng số sản phẩm"
@@ -126,7 +134,7 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                     <Card loading={loading}>
                         <Statistic
                             title="Người dùng"
@@ -136,7 +144,7 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                     <Card loading={loading}>
                         <Statistic
                             title="Tổng doanh thu"
@@ -147,13 +155,23 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                     <Card loading={loading}>
                         <Statistic
                             title="Sản phẩm sắp hết hàng"
                             value={stats.lowStockProducts.length}
                             prefix={<InboxOutlined />}
                             valueStyle={{ color: '#faad14' }}
+                        />
+                    </Card>
+                </Col>
+                <Col span={5}>
+                    <Card loading={loading}>
+                        <Statistic
+                            title="Số lượng bán hôm nay"
+                            value={stats.todayOrders}
+                            prefix={<ShoppingOutlined />}
+                            valueStyle={{ color: '#722ed1' }}
                         />
                     </Card>
                 </Col>
@@ -234,9 +252,13 @@ const Dashboard = () => {
                             <Title level={4} style={{ marginTop: 16 }}>
                                 Doanh thu: {revenue.toLocaleString()} VND
                             </Title>
+
                         </Space>
+
                     </Card>
+
                 </Col>
+
             </Row>
 
             <Card

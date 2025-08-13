@@ -31,8 +31,8 @@ const Order = () => {
 
   const handleConfirm = async (id) => {
     if (!id) {
-        alert('Lỗi: ID đơn hàng không hợp lệ.');
-        return;
+      alert('Lỗi: ID đơn hàng không hợp lệ.');
+      return;
     }
     try {
       await orderAPI.updateOrderStatus(id, 'confirmed');
@@ -47,8 +47,8 @@ const Order = () => {
 
   const handleCancel = async (id) => {
     if (!id) {
-        alert('Lỗi: ID đơn hàng không hợp lệ.');
-        return;
+      alert('Lỗi: ID đơn hàng không hợp lệ.');
+      return;
     }
     try {
       await orderAPI.updateOrderStatus(id, 'cancelled');
@@ -85,17 +85,17 @@ const Order = () => {
     }
   };
 
-  const handleReturned = async (id) => {
-    if (!id) return alert('Lỗi: ID đơn hàng không hợp lệ.');
-    try {
-      await orderAPI.updateOrderStatus(id, 'returned');
-      setOrders(orders.map(o => o._id === id ? { ...o, status: 'returned' } : o));
-      setActiveOrderId(null);
-      alert('Đã chuyển sang trạng thái Đã trả hàng!');
-    } catch (err) {
-      alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
-    }
-  };
+  // const handleReturned = async (id) => {
+  //   if (!id) return alert('Lỗi: ID đơn hàng không hợp lệ.');
+  //   try {
+  //     await orderAPI.updateOrderStatus(id, 'returned');
+  //     setOrders(orders.map(o => o._id === id ? { ...o, status: 'returned' } : o));
+  //     setActiveOrderId(null);
+  //     alert('Đã chuyển sang trạng thái Đã trả hàng!');
+  //   } catch (err) {
+  //     alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
+  //   }
+  // };
 
   const toggleActions = (id) => {
     setActiveOrderId(prevId => (prevId === id ? null : id));
@@ -104,7 +104,7 @@ const Order = () => {
   // Helper function to format date
   const formatDate = (dateField) => {
     if (!dateField) return 'N/A';
-    
+
     let date;
     if (dateField.$date) {
       // MongoDB date format
@@ -116,13 +116,13 @@ const Order = () => {
       // Direct Date object
       date = new Date(dateField);
     }
-    
+
     return date.toLocaleDateString('vi-VN');
   };
 
   // Helper function to get status display text
   const getStatusDisplay = (status) => {
-    switch(status) {
+    switch (status) {
       case 'waiting':
         return 'Chờ xử lý';
       case 'pending':
@@ -144,7 +144,7 @@ const Order = () => {
 
   // Helper function to get status class
   const getStatusClass = (status) => {
-    switch(status) {
+    switch (status) {
       case 'waiting':
         return 'order-status-waiting';
       case 'pending':
@@ -213,7 +213,14 @@ const Order = () => {
                       Xem chi tiết
                     </button>
                   </td>
-                  <td>{order.userId?._id || order.userId || ''}</td>
+                  <td>
+                    {order.userId?._id
+                      ? `${order.userId._id.substring(0, 3)}...${order.userId._id.slice(-4)}`
+                      : order.userId
+                        ? `${order.userId.substring(0, 3)}...${order.userId.slice(-4)}`
+                        : ''
+                    }
+                  </td>
                   <td>{firstItem.name || ''}</td>
                   <td>{firstItem.purchaseQuantity || ''}</td>
                   <td>{firstItem.price ? firstItem.price.toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
@@ -278,7 +285,6 @@ const Order = () => {
                         {activeOrderId === order._id && (
                           <div className="order-action-dropdown">
                             <button className="btn btn-confirm" onClick={() => handleDelivered(order._id)}>Chuyển sang Đã nhận hàng</button>
-                            <button className="btn btn-cancel" onClick={() => handleReturned(order._id)}>Chuyển sang Đã trả hàng</button>
                           </div>
                         )}
                       </div>
@@ -290,11 +296,11 @@ const Order = () => {
                         >
                           {getStatusDisplay(order.status)}
                         </button>
-                        {activeOrderId === order._id && (
+                        {/* {activeOrderId === order._id && (
                           <div className="order-action-dropdown">
                             <button className="btn btn-cancel" onClick={() => handleReturned(order._id)}>Chuyển sang Đã trả hàng</button>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     ) : (
                       <span className={`order-status-badge ${getStatusClass(order.status)}`}>

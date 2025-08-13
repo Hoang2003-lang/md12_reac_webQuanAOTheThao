@@ -1,6 +1,5 @@
 .product-container {
-    padding: 20px;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -29,7 +28,6 @@
     font-family: 'Segoe UI', Arial, sans-serif;
     min-width: 800px;
 }
-
 .product-table th,
 .product-table td {
     padding: 1.1rem 1rem;

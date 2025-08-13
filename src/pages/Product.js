@@ -14,7 +14,7 @@ const Product = () => {
         price: '',
         stock: '',
         description: '',
-        image: '',
+        images: [''],
         size: ['S', 'M', 'L', 'XL'],
         colors: ['Đen', 'Trắng'],
         categoryCode: ''
@@ -44,6 +44,23 @@ const Product = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleImageChange = (index, value) => {
+        const updatedImages = [...newProduct.images];
+        updatedImages[index] = value;
+        setNewProduct({ ...newProduct, images: updatedImages });
+    };
+
+    // Thêm ô nhập ảnh mới
+    const addImageField = () => {
+        setNewProduct({ ...newProduct, images: [...newProduct.images, ""] });
+    };
+
+    // Xóa ô nhập ảnh
+    const removeImageField = (index) => {
+        const updatedImages = newProduct.images.filter((_, i) => i !== index);
+        setNewProduct({ ...newProduct, images: updatedImages });
     };
 
     // Handle input change
@@ -97,7 +114,7 @@ const Product = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validate
-        if (!newProduct.name.trim() || !newProduct.image.trim()) {
+        if (!newProduct.name.trim() || !newProduct.images[0].trim()) {
             alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
             return;
         }
@@ -125,7 +142,7 @@ const Product = () => {
                 price: '',
                 stock: '',
                 description: '',
-                image: '',
+                images: [''],
                 size: ['S', 'M', 'L', 'XL'],
                 colors: ['Đen', 'Trắng'],
                 categoryCode: ''
@@ -175,7 +192,7 @@ const Product = () => {
             price: product.price || '',
             stock: product.stock || '',
             description: product.description || '',
-            image: product.image || '',
+            images: product.images || '',
             size: product.size || ['S', 'M', 'L', 'XL'],
             colors: product.colors || ['Đen', 'Trắng'],
             categoryCode: product.categoryCode || ''
@@ -186,7 +203,7 @@ const Product = () => {
     // Handle update submit
     const handleUpdate = async (e) => {
         e.preventDefault();
-        if (!newProduct.name.trim() || !newProduct.image.trim()) {
+        if (!newProduct.name.trim() || !newProduct.images[0].trim()) {
             alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
             return;
         }
@@ -217,7 +234,7 @@ const Product = () => {
                 price: '',
                 stock: '',
                 description: '',
-                image: '',
+                images: [''],
                 size: ['S', 'M', 'L', 'XL'],
                 colors: ['Đen', 'Trắng'],
                 categoryCode: ''
@@ -316,7 +333,7 @@ const Product = () => {
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <label>Link hình ảnh:</label>
                             <input
                                 type="url"
@@ -325,6 +342,32 @@ const Product = () => {
                                 onChange={handleInputChange}
                                 required
                             />
+                        </div> */}
+                        <div className="form-group">
+                            <label>Link hình ảnh:</label>
+                            {newProduct.images.map((img, index) => (
+                                <div key={index} style={{ display: "flex", marginBottom: "5px" }}>
+                                    <input
+                                        type="url"
+                                        value={img}
+                                        onChange={(e) => handleImageChange(index, e.target.value)}
+                                        required
+                                        style={{ flex: 1 }}
+                                    />
+                                    {newProduct.images.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImageField(index)}
+                                            style={{ marginLeft: "5px" }}
+                                        >
+                                            ❌
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button type="button" onClick={addImageField} style={{ marginTop: "5px" }}>
+                                ➕ Thêm ảnh
+                            </button>
                         </div>
                         <div className="form-group">
                             <label>Mã danh mục:</label>
@@ -428,13 +471,29 @@ const Product = () => {
                         </div>
                         <div className="form-group">
                             <label>Link hình ảnh:</label>
-                            <input
-                                type="url"
-                                name="image"
-                                value={newProduct.image}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            {newProduct.images.map((img, index) => (
+                                <div key={index} style={{ display: "flex", marginBottom: "5px" }}>
+                                    <input
+                                        type="url"
+                                        value={img}
+                                        onChange={(e) => handleImageChange(index, e.target.value)}
+                                        required
+                                        style={{ flex: 1 }}
+                                    />
+                                    {newProduct.images.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImageField(index)}
+                                            style={{ marginLeft: "5px" }}
+                                        >
+                                            ❌
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button type="button" onClick={addImageField} style={{ marginTop: "5px" }}>
+                                ➕ Thêm ảnh
+                            </button>
                         </div>
                         <div className="form-group">
                             <label>Mã danh mục:</label>
@@ -504,11 +563,38 @@ const Product = () => {
                         ) : selectedProduct ? (
                             <>
                                 <h3>Chi tiết sản phẩm</h3>
-                                <img
-                                    src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
-                                    alt={selectedProduct.name || 'No name'}
-                                    style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, margin: '0 auto 1rem', background: '#fff', display: 'block' }}
-                                />
+
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '1rem' }}>
+                                    {Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0 ? (
+                                        selectedProduct.images.map((img, index) => (
+                                            <img
+                                                key={index}
+                                                src={img}
+                                                alt={`${selectedProduct.name || 'No name'} - ${index + 1}`}
+                                                style={{
+                                                    width: 120,
+                                                    height: 120,
+                                                    objectFit: 'contain',
+                                                    borderRadius: 8,
+                                                    background: '#fff',
+                                                }}
+                                            />
+                                        ))
+                                    ) : (
+                                        <img
+                                            src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
+                                            alt={selectedProduct.name || 'No name'}
+                                            style={{
+                                                width: 120,
+                                                height: 120,
+                                                objectFit: 'contain',
+                                                borderRadius: 8,
+                                                background: '#fff',
+                                            }}
+                                        />
+                                    )}
+                                </div>
+
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
                                 <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
@@ -543,7 +629,11 @@ const Product = () => {
                     <tbody>
                         {currentProducts.map(product => (
                             <tr key={product._id} onClick={() => handleShowDetail(product._id)} style={{ cursor: 'pointer' }}>
-                                <td>{product._id}</td>
+                                <td>
+                                    {product._id
+                                        ? `${product._id.slice(0, 1)}...${product._id.slice(-4)}`
+                                        : ''}
+                                </td>
                                 <td>{product.name ? product.name : 'Không có tên'}</td>
                                 <td>
                                     {typeof product.price === 'number' && !isNaN(product.price)
@@ -553,8 +643,12 @@ const Product = () => {
                                 <td>
                                     <div className="product-image">
                                         <img
-                                            src={product.image ? product.image : 'https://via.placeholder.com/60x60?text=No+Image'}
-                                            alt={product.name ? product.name : 'No name'}
+                                            src={
+                                                Array.isArray(product.images) && product.images.length > 0
+                                                    ? product.images[0]
+                                                    : product.image || 'https://via.placeholder.com/60x60?text=No+Image'
+                                            }
+                                            alt={product.name || 'No name'}
                                         />
                                     </div>
                                 </td>

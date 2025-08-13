@@ -69,7 +69,7 @@ const SaleProducts = () => {
       if (editingProduct) {
         // Update existing product
         await saleProductAPI.updateSaleProduct(editingProduct._id, productData);
-        setSaleProducts(saleProducts.map(p => 
+        setSaleProducts(saleProducts.map(p =>
           p._id === editingProduct._id ? { ...productData, _id: p._id } : p
         ));
       } else {
@@ -77,7 +77,7 @@ const SaleProducts = () => {
         const newProduct = await saleProductAPI.createSaleProduct(productData);
         setSaleProducts([...saleProducts, newProduct]);
       }
-      
+
       setShowForm(false);
       setEditingProduct(null);
       e.target.reset();
@@ -91,7 +91,7 @@ const SaleProducts = () => {
   const handleToggleDiscountStatus = async (productId, currentStatus) => {
     try {
       await saleProductAPI.updateDiscountStatus(productId, !currentStatus);
-      setSaleProducts(saleProducts.map(p => 
+      setSaleProducts(saleProducts.map(p =>
         p._id === productId ? { ...p, isDiscount: !currentStatus } : p
       ));
       alert('Cập nhật trạng thái giảm giá thành công!');
@@ -114,11 +114,11 @@ const SaleProducts = () => {
   if (error) {
     return (
       <div className="sale-products-container">
-        <div className="error-message" style={{ 
-          textAlign: 'center', 
-          padding: '40px', 
-          color: '#ff6b6b', 
-          fontSize: '16px' 
+        <div className="error-message" style={{
+          textAlign: 'center',
+          padding: '40px',
+          color: '#ff6b6b',
+          fontSize: '16px'
         }}>
           {error}
         </div>
@@ -130,7 +130,7 @@ const SaleProducts = () => {
     <div className="sale-products-container">
       <div className="sale-products-header">
         <h2>Quản lý sản phẩm giảm giá</h2>
-        <button 
+        <button
           className="add-product-btn"
           onClick={() => setShowForm(true)}
         >
@@ -145,33 +145,33 @@ const SaleProducts = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Tên sản phẩm:</label>
-                <input 
-                  type="text" 
-                  name="name" 
+                <input
+                  type="text"
+                  name="name"
                   defaultValue={editingProduct?.name || ''}
-                  required 
+                  required
                 />
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Giá gốc (VNĐ):</label>
-                  <input 
-                    type="number" 
-                    name="price" 
+                  <input
+                    type="number"
+                    name="price"
                     defaultValue={editingProduct?.price || ''}
-                    required 
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Phần trăm giảm giá (%):</label>
-                  <input 
-                    type="number" 
-                    name="discount_percent" 
-                    min="0" 
+                  <input
+                    type="number"
+                    name="discount_percent"
+                    min="0"
                     max="100"
                     defaultValue={editingProduct?.discount_percent || ''}
-                    required 
+                    required
                   />
                 </div>
               </div>
@@ -179,73 +179,73 @@ const SaleProducts = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Giá sau giảm (VNĐ):</label>
-                  <input 
-                    type="number" 
-                    name="discount_price" 
+                  <input
+                    type="number"
+                    name="discount_price"
                     defaultValue={editingProduct?.discount_price || ''}
-                    required 
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Số lượng tồn kho:</label>
-                  <input 
-                    type="number" 
-                    name="stock" 
+                  <input
+                    type="number"
+                    name="stock"
                     defaultValue={editingProduct?.stock || ''}
-                    required 
+                    required
                   />
                 </div>
               </div>
 
               <div className="form-group">
                 <label>Mô tả:</label>
-                <textarea 
-                  name="description" 
+                <textarea
+                  name="description"
                   defaultValue={editingProduct?.description || ''}
-                  required 
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label>Hình ảnh (URL):</label>
-                <input 
-                  type="url" 
-                  name="image" 
+                <input
+                  type="url"
+                  name="image"
                   defaultValue={editingProduct?.image || ''}
-                  required 
+                  required
                 />
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Kích thước (phân cách bằng dấu phẩy):</label>
-                  <input 
-                    type="text" 
-                    name="size" 
+                  <input
+                    type="text"
+                    name="size"
                     defaultValue={editingProduct?.size?.join(', ') || ''}
                     placeholder="M, L, XL"
-                    required 
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Màu sắc (phân cách bằng dấu phẩy):</label>
-                  <input 
-                    type="text" 
-                    name="colors" 
+                  <input
+                    type="text"
+                    name="colors"
                     defaultValue={editingProduct?.colors?.join(', ') || ''}
                     placeholder="Đen, Trắng"
-                    required 
+                    required
                   />
                 </div>
               </div>
 
               <div className="form-group">
                 <label>Mã danh mục:</label>
-                <input 
-                  type="text" 
-                  name="categoryCode" 
+                <input
+                  type="text"
+                  name="categoryCode"
                   defaultValue={editingProduct?.categoryCode || ''}
-                  required 
+                  required
                 />
               </div>
 
@@ -253,8 +253,8 @@ const SaleProducts = () => {
                 <button type="submit" className="save-btn">
                   {editingProduct ? 'Cập nhật' : 'Thêm'}
                 </button>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="cancel-btn"
                   onClick={() => {
                     setShowForm(false);
@@ -273,8 +273,23 @@ const SaleProducts = () => {
         <div className="detail-overlay" onClick={handleCloseDetail}>
           <div className="detail-modal" onClick={e => e.stopPropagation()}>
             <button className="close-detail-btn" onClick={handleCloseDetail}>&times;</button>
-            <div className="detail-img-wrap">
-              <img src={selectedProduct.image} alt={selectedProduct.name} className="detail-img" />
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0 ? (
+                selectedProduct.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`${selectedProduct.name} - ${index + 1}`}
+                    style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fff' }}
+                  />
+                ))
+              ) : (
+                <img
+                  src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
+                  alt={selectedProduct.name || 'No name'}
+                  style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fff' }}
+                />
+              )}
             </div>
             <div className="detail-info">
               <h2>{selectedProduct.name}</h2>
@@ -290,7 +305,7 @@ const SaleProducts = () => {
               <div className="detail-row">
                 <b>Trạng thái:</b>
                 <span className={`status-indicator ${selectedProduct.isDiscount ? 'status-active' : 'status-inactive'}`}
-                  style={{marginLeft: 8}}>
+                  style={{ marginLeft: 8 }}>
                   <span className="status-icon">{selectedProduct.isDiscount ? '✔' : '✖'}</span>
                   {selectedProduct.isDiscount ? 'Đang giảm giá' : 'Không giảm giá'}
                 </span>
@@ -310,7 +325,7 @@ const SaleProducts = () => {
         <div className="empty-state">
           <h3>Chưa có sản phẩm giảm giá</h3>
           <p>Bắt đầu bằng cách thêm sản phẩm giảm giá đầu tiên</p>
-          <button 
+          <button
             className="add-product-btn"
             onClick={() => setShowForm(true)}
           >
@@ -339,7 +354,17 @@ const SaleProducts = () => {
               {saleProducts.map((product) => (
                 <tr key={product._id}>
                   <td>
-                    <img src={product.image} alt={product.name} className="table-product-img" onClick={() => handleShowDetail(product)} style={{cursor: 'pointer'}} />
+                    <img
+                      src={
+                        Array.isArray(product.images) && product.images.length > 0
+                          ? product.images[0]
+                          : product.image || 'https://via.placeholder.com/50x50?text=No+Image'
+                      }
+                      alt={product.name}
+                      className="table-product-img"
+                      onClick={() => handleShowDetail(product)}
+                      style={{ cursor: 'pointer', width: 50, height: 50, objectFit: 'contain', borderRadius: 4 }}
+                    />
                   </td>
                   <td>{product.name}</td>
                   <td><span className="original-price">{product.price.toLocaleString('vi-VN')} VNĐ</span></td>
@@ -359,19 +384,19 @@ const SaleProducts = () => {
                   </td>
                   <td className="action-cell">
                     <div className="action-group">
-                      <button 
+                      <button
                         className="edit-btn"
                         onClick={() => handleEdit(product)}
                       >
                         Sửa
                       </button>
-                      <button 
+                      <button
                         className="delete-btn"
                         onClick={() => handleDelete(product._id)}
                       >
                         Xóa
                       </button>
-                      <button 
+                      <button
                         className={`discount-toggle-btn ${product.isDiscount ? 'active' : 'inactive'}`}
                         onClick={() => handleToggleDiscountStatus(product._id, product.isDiscount)}
                       >
