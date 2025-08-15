@@ -57,7 +57,7 @@
 
 .product-image {
     position: relative;
-    width: 100px;
+    width: 80px;
     height: 50px;
     overflow: hidden;
     display: flex;
@@ -487,5 +487,84 @@
         padding: 0.35rem 0.7rem;
         font-size: 0.95rem;
         min-width: 90px;
+    }
+}
+
+/* Image input styles */
+.image-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.image-input-group input {
+    flex: 1;
+}
+
+.btn-remove {
+    background: #ff4444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+}
+
+.btn-remove:hover {
+    background: #cc0000;
+}
+
+.btn-add-image {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+
+.btn-add-image:hover {
+    background: #45a049;
+}
+
+.image-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff5722;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.product-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .image-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-remove {
+        align-self: flex-end;
+        width: fit-content;
     }
 } 

@@ -13,6 +13,7 @@ const Product = () => {
         name: '',
         price: '',
         stock: '',
+        sold: '',
         description: '',
         images: [''],
         size: ['S', 'M', 'L', 'XL'],
@@ -46,29 +47,40 @@ const Product = () => {
         }
     };
 
-    const handleImageChange = (index, value) => {
-        const updatedImages = [...newProduct.images];
-        updatedImages[index] = value;
-        setNewProduct({ ...newProduct, images: updatedImages });
-    };
-
-    // Thêm ô nhập ảnh mới
-    const addImageField = () => {
-        setNewProduct({ ...newProduct, images: [...newProduct.images, ""] });
-    };
-
-    // Xóa ô nhập ảnh
-    const removeImageField = (index) => {
-        const updatedImages = newProduct.images.filter((_, i) => i !== index);
-        setNewProduct({ ...newProduct, images: updatedImages });
-    };
-
     // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewProduct(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+    // Handle images change
+    const handleImagesChange = (index, value) => {
+        setNewProduct(prev => {
+            const newImages = [...prev.images];
+            newImages[index] = value;
+            return {
+                ...prev,
+                images: newImages
+            };
+        });
+    };
+
+    // Add new image field
+    const addImageField = () => {
+        setNewProduct(prev => ({
+            ...prev,
+            images: [...prev.images, '']
+        }));
+    };
+
+    // Remove image field
+    const removeImageField = (index) => {
+        setNewProduct(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
         }));
     };
 
@@ -114,8 +126,12 @@ const Product = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validate
-        if (!newProduct.name.trim() || !newProduct.images[0].trim()) {
-            alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
+        if (!newProduct.name.trim()) {
+            alert('Vui lòng nhập tên sản phẩm!');
+            return;
+        }
+        if (newProduct.images.length === 0 || newProduct.images.every(img => !img.trim())) {
+            alert('Vui lòng nhập ít nhất một link hình ảnh!');
             return;
         }
         if (newProduct.size.length === 0) {
@@ -127,11 +143,16 @@ const Product = () => {
             return;
         }
         try {
-            // Chuyển đổi price và stock thành số
+            // Filter out empty image URLs
+            const filteredImages = newProduct.images.filter(img => img.trim() !== '');
+            
+            // Chuyển đổi price, stock và sold thành số
             const productData = {
                 ...newProduct,
                 price: Number(newProduct.price),
-                stock: Number(newProduct.stock)
+                stock: Number(newProduct.stock),
+                sold: Number(newProduct.sold || 0),
+                images: filteredImages
             };
 
             await productAPI.createProduct(productData);
@@ -141,6 +162,7 @@ const Product = () => {
                 name: '',
                 price: '',
                 stock: '',
+                sold: '',
                 description: '',
                 images: [''],
                 size: ['S', 'M', 'L', 'XL'],
@@ -191,8 +213,9 @@ const Product = () => {
             name: product.name || '',
             price: product.price || '',
             stock: product.stock || '',
+            sold: product.sold || '',
             description: product.description || '',
-            images: product.images || '',
+            images: product.images && product.images.length > 0 ? product.images : [''],
             size: product.size || ['S', 'M', 'L', 'XL'],
             colors: product.colors || ['Đen', 'Trắng'],
             categoryCode: product.categoryCode || ''
@@ -203,8 +226,12 @@ const Product = () => {
     // Handle update submit
     const handleUpdate = async (e) => {
         e.preventDefault();
-        if (!newProduct.name.trim() || !newProduct.images[0].trim()) {
-            alert('Vui lòng nhập đầy đủ tên và link hình ảnh!');
+        if (!newProduct.name.trim()) {
+            alert('Vui lòng nhập tên sản phẩm!');
+            return;
+        }
+        if (newProduct.images.length === 0 || newProduct.images.every(img => !img.trim())) {
+            alert('Vui lòng nhập ít nhất một link hình ảnh!');
             return;
         }
         if (newProduct.size.length === 0) {
@@ -216,10 +243,15 @@ const Product = () => {
             return;
         }
         try {
+            // Filter out empty image URLs
+            const filteredImages = newProduct.images.filter(img => img.trim() !== '');
+            
             const productData = {
                 ...newProduct,
                 price: Number(newProduct.price),
-                stock: Number(newProduct.stock)
+                stock: Number(newProduct.stock),
+                sold: Number(newProduct.sold || 0),
+                images: filteredImages
             };
 
             await productAPI.updateProduct(editingProduct._id, productData);
@@ -233,6 +265,7 @@ const Product = () => {
                 name: '',
                 price: '',
                 stock: '',
+                sold: '',
                 description: '',
                 images: [''],
                 size: ['S', 'M', 'L', 'XL'],
@@ -325,6 +358,16 @@ const Product = () => {
                             />
                         </div>
                         <div className="form-group">
+                            <label>Đã bán:</label>
+                            <input
+                                type="number"
+                                name="sold"
+                                value={newProduct.sold}
+                                onChange={handleInputChange}
+                                placeholder="0"
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Mô tả:</label>
                             <textarea
                                 name="description"
@@ -333,40 +376,34 @@ const Product = () => {
                                 required
                             />
                         </div>
-                        {/* <div className="form-group">
-                            <label>Link hình ảnh:</label>
-                            <input
-                                type="url"
-                                name="image"
-                                value={newProduct.image}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div> */}
                         <div className="form-group">
                             <label>Link hình ảnh:</label>
-                            {newProduct.images.map((img, index) => (
-                                <div key={index} style={{ display: "flex", marginBottom: "5px" }}>
+                            {newProduct.images.map((image, index) => (
+                                <div key={index} className="image-input-group">
                                     <input
                                         type="url"
-                                        value={img}
-                                        onChange={(e) => handleImageChange(index, e.target.value)}
-                                        required
-                                        style={{ flex: 1 }}
+                                        value={image}
+                                        onChange={(e) => handleImagesChange(index, e.target.value)}
+                                        placeholder={`Link hình ảnh ${index + 1}`}
+                                        required={index === 0}
                                     />
                                     {newProduct.images.length > 1 && (
                                         <button
                                             type="button"
+                                            className="btn btn-remove"
                                             onClick={() => removeImageField(index)}
-                                            style={{ marginLeft: "5px" }}
                                         >
-                                            ❌
+                                            Xóa
                                         </button>
                                     )}
                                 </div>
                             ))}
-                            <button type="button" onClick={addImageField} style={{ marginTop: "5px" }}>
-                                ➕ Thêm ảnh
+                            <button
+                                type="button"
+                                className="btn btn-add-image"
+                                onClick={addImageField}
+                            >
+                                + Thêm hình ảnh
                             </button>
                         </div>
                         <div className="form-group">
@@ -376,7 +413,7 @@ const Product = () => {
                                 name="categoryCode"
                                 value={newProduct.categoryCode}
                                 onChange={handleInputChange}
-                                placeholder="VD: japan, vietnam, etc."
+                                placeholder="VD: chelsea, japan, vietnam, etc."
                             />
                         </div>
                         <div className="form-group">
@@ -461,6 +498,16 @@ const Product = () => {
                             />
                         </div>
                         <div className="form-group">
+                            <label>Đã bán:</label>
+                            <input
+                                type="number"
+                                name="sold"
+                                value={newProduct.sold}
+                                onChange={handleInputChange}
+                                placeholder="0"
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Mô tả:</label>
                             <textarea
                                 name="description"
@@ -471,28 +518,32 @@ const Product = () => {
                         </div>
                         <div className="form-group">
                             <label>Link hình ảnh:</label>
-                            {newProduct.images.map((img, index) => (
-                                <div key={index} style={{ display: "flex", marginBottom: "5px" }}>
+                            {newProduct.images.map((image, index) => (
+                                <div key={index} className="image-input-group">
                                     <input
                                         type="url"
-                                        value={img}
-                                        onChange={(e) => handleImageChange(index, e.target.value)}
-                                        required
-                                        style={{ flex: 1 }}
+                                        value={image}
+                                        onChange={(e) => handleImagesChange(index, e.target.value)}
+                                        placeholder={`Link hình ảnh ${index + 1}`}
+                                        required={index === 0}
                                     />
                                     {newProduct.images.length > 1 && (
                                         <button
                                             type="button"
+                                            className="btn btn-remove"
                                             onClick={() => removeImageField(index)}
-                                            style={{ marginLeft: "5px" }}
                                         >
-                                            ❌
+                                            Xóa
                                         </button>
                                     )}
                                 </div>
                             ))}
-                            <button type="button" onClick={addImageField} style={{ marginTop: "5px" }}>
-                                ➕ Thêm ảnh
+                            <button
+                                type="button"
+                                className="btn btn-add-image"
+                                onClick={addImageField}
+                            >
+                                + Thêm hình ảnh
                             </button>
                         </div>
                         <div className="form-group">
@@ -502,7 +553,7 @@ const Product = () => {
                                 name="categoryCode"
                                 value={newProduct.categoryCode}
                                 onChange={handleInputChange}
-                                placeholder="VD: japan, vietnam, etc."
+                                placeholder="VD: chelsea, japan, vietnam, etc."
                             />
                         </div>
                         <div className="form-group">
@@ -563,41 +614,45 @@ const Product = () => {
                         ) : selectedProduct ? (
                             <>
                                 <h3>Chi tiết sản phẩm</h3>
-
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '1rem' }}>
-                                    {Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0 ? (
-                                        selectedProduct.images.map((img, index) => (
+                                <div className="product-images">
+                                    {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                                        selectedProduct.images.map((image, index) => (
                                             <img
                                                 key={index}
-                                                src={img}
-                                                alt={`${selectedProduct.name || 'No name'} - ${index + 1}`}
-                                                style={{
-                                                    width: 120,
-                                                    height: 120,
-                                                    objectFit: 'contain',
-                                                    borderRadius: 8,
+                                                src={image || 'https://via.placeholder.com/120x120?text=No+Image'}
+                                                alt={`${selectedProduct.name || 'Product'} - Image ${index + 1}`}
+                                                style={{ 
+                                                    width: 120, 
+                                                    height: 120, 
+                                                    objectFit: 'contain', 
+                                                    borderRadius: 8, 
+                                                    margin: '0.5rem', 
                                                     background: '#fff',
+                                                    border: '1px solid #ddd'
                                                 }}
                                             />
                                         ))
                                     ) : (
                                         <img
-                                            src={selectedProduct.image || 'https://via.placeholder.com/120x120?text=No+Image'}
-                                            alt={selectedProduct.name || 'No name'}
-                                            style={{
-                                                width: 120,
-                                                height: 120,
-                                                objectFit: 'contain',
-                                                borderRadius: 8,
+                                            src="https://via.placeholder.com/120x120?text=No+Image"
+                                            alt="No image"
+                                            style={{ 
+                                                width: 120, 
+                                                height: 120, 
+                                                objectFit: 'contain', 
+                                                borderRadius: 8, 
+                                                margin: '0 auto 1rem', 
                                                 background: '#fff',
+                                                display: 'block',
+                                                border: '1px solid #ddd'
                                             }}
                                         />
                                     )}
                                 </div>
-
                                 <p><b>Tên:</b> {selectedProduct.name || 'Không có tên'}</p>
                                 <p><b>Giá:</b> {typeof selectedProduct.price === 'number' ? selectedProduct.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</p>
                                 <p><b>Tồn kho:</b> {selectedProduct.stock ?? 'N/A'}</p>
+                                <p><b>Đã bán:</b> {selectedProduct.sold ?? '0'}</p>
                                 <p><b>Mã danh mục:</b> {selectedProduct.categoryCode || 'N/A'}</p>
                                 <p><b>Size có sẵn:</b> {selectedProduct.size && selectedProduct.size.length > 0 ? selectedProduct.size.join(', ') : 'N/A'}</p>
                                 <p><b>Màu sắc có sẵn:</b> {selectedProduct.colors && selectedProduct.colors.length > 0 ? selectedProduct.colors.join(', ') : 'N/A'}</p>
@@ -619,6 +674,7 @@ const Product = () => {
                             <th>Giá</th>
                             <th>Hình ảnh</th>
                             <th>Tồn kho</th>
+                            <th>Đã bán</th>
                             <th>Mã danh mục</th>
                             <th>Size</th>
                             <th>Màu sắc</th>
@@ -643,16 +699,16 @@ const Product = () => {
                                 <td>
                                     <div className="product-image">
                                         <img
-                                            src={
-                                                Array.isArray(product.images) && product.images.length > 0
-                                                    ? product.images[0]
-                                                    : product.image || 'https://via.placeholder.com/60x60?text=No+Image'
-                                            }
-                                            alt={product.name || 'No name'}
+                                            src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/60x60?text=No+Image'}
+                                            alt={product.name ? product.name : 'No name'}
                                         />
+                                        {product.images && product.images.length > 1 && (
+                                            <span className="image-count">+{product.images.length - 1}</span>
+                                        )}
                                     </div>
                                 </td>
                                 <td>{product.stock ?? 'N/A'}</td>
+                                <td>{product.sold ?? '0'}</td>
                                 <td>{product.categoryCode || 'N/A'}</td>
                                 <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
                                 <td>{product.colors && product.colors.length > 0 ? product.colors.join(', ') : 'N/A'}</td>
