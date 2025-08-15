@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/md12-react-webqathethao/static/css/main.ad379fb5.css",
-    "main.js": "/md12-react-webqathethao/static/js/main.d3b4412e.js",
-    "static/js/453.2bceef42.chunk.js": "/md12-react-webqathethao/static/js/453.2bceef42.chunk.js",
-    "static/media/logoF7.png": "/md12-react-webqathethao/static/media/logoF7.164a531321e36976781a.png",
-    "index.html": "/md12-react-webqathethao/index.html",
-    "main.ad379fb5.css.map": "/md12-react-webqathethao/static/css/main.ad379fb5.css.map",
-    "main.d3b4412e.js.map": "/md12-react-webqathethao/static/js/main.d3b4412e.js.map",
-    "453.2bceef42.chunk.js.map": "/md12-react-webqathethao/static/js/453.2bceef42.chunk.js.map"
+    "main.css": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css",
+    "main.js": "/md12_reac_webQuanAOTheThao/static/js/main.b815c0e7.js",
+    "static/js/453.2bceef42.chunk.js": "/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js",
+    "static/media/logoF7.png": "/md12_reac_webQuanAOTheThao/static/media/logoF7.164a531321e36976781a.png",
+    "index.html": "/md12_reac_webQuanAOTheThao/index.html",
+    "main.e3bc8c6a.css.map": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css.map",
+    "main.b815c0e7.js.map": "/md12_reac_webQuanAOTheThao/static/js/main.b815c0e7.js.map",
+    "453.2bceef42.chunk.js.map": "/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ad379fb5.css",
-    "static/js/main.d3b4412e.js"
+    "static/css/main.e3bc8c6a.css",
+    "static/js/main.b815c0e7.js"
   ]
 }
