@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css",
-    "main.js": "/md12_reac_webQuanAOTheThao/static/js/main.b815c0e7.js",
-    "static/js/453.2bceef42.chunk.js": "/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js",
-    "static/media/logoF7.png": "/md12_reac_webQuanAOTheThao/static/media/logoF7.164a531321e36976781a.png",
-    "index.html": "/md12_reac_webQuanAOTheThao/index.html",
-    "main.e3bc8c6a.css.map": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css.map",
-    "main.b815c0e7.js.map": "/md12_reac_webQuanAOTheThao/static/js/main.b815c0e7.js.map",
-    "453.2bceef42.chunk.js.map": "/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js.map"
+    "main.css": "/admin-web-f7shop/static/css/main.e3bc8c6a.css",
+    "main.js": "/admin-web-f7shop/static/js/main.19a6a3ae.js",
+    "static/js/453.2bceef42.chunk.js": "/admin-web-f7shop/static/js/453.2bceef42.chunk.js",
+    "static/media/logoF7.png": "/admin-web-f7shop/static/media/logoF7.164a531321e36976781a.png",
+    "index.html": "/admin-web-f7shop/index.html",
+    "main.e3bc8c6a.css.map": "/admin-web-f7shop/static/css/main.e3bc8c6a.css.map",
+    "main.19a6a3ae.js.map": "/admin-web-f7shop/static/js/main.19a6a3ae.js.map",
+    "453.2bceef42.chunk.js.map": "/admin-web-f7shop/static/js/453.2bceef42.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e3bc8c6a.css",
-    "static/js/main.b815c0e7.js"
+    "static/js/main.19a6a3ae.js"
   ]
 }
