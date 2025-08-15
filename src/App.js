@@ -12,7 +12,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/md12_reac_webQuanAOTheThao">
       <LogoutButton />
       <Routes>
         {/* Redirect root to login if not authenticated */}
