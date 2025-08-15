@@ -8,6 +8,8 @@ const Order = () => {
   const [error, setError] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState(null); // State to track which dropdown is open
   const [modalOrder, setModalOrder] = useState(null); // order to show in modal
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage] = useState(6);
 
   // Fetch orders on component mount
   useEffect(() => {
@@ -172,6 +174,17 @@ const Order = () => {
     return 0;
   };
 
+  // Add pagination calculations
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+
+  // Add pagination handlers
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   if (loading) return <div className="loading">Đang tải...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -203,7 +216,7 @@ const Order = () => {
               </td>
             </tr>
           ) : (
-            orders.map(order => {
+            currentOrders.map(order => {
               const voucherDiscount = getVoucherDiscount(order);
               const firstItem = order.items && order.items[0] ? order.items[0] : {};
               return (
@@ -321,6 +334,33 @@ const Order = () => {
           </tr>
         </tbody>
       </table>
+
+      {/* Add pagination controls */}
+      <div className="pagination">
+        <button
+          className="btn btn-pagination"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Trước
+        </button>
+        {[...Array(totalPages)].map((_, index) => (
+          <button
+            key={index + 1}
+            className={`btn btn-pagination ${currentPage === index + 1 ? 'active' : ''}`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          className="btn btn-pagination"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Sau
+        </button>
+      </div>
 
       {/* Modal dialog for order detail */}
       {modalOrder && (
