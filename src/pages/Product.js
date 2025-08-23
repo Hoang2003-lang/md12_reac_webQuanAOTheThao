@@ -620,7 +620,7 @@ const Product = () => {
                                             <img
                                                 key={index}
                                                 src={image || 'https://via.placeholder.com/120x120?text=No+Image'}
-                                                alt={`${selectedProduct.name || 'Product'} - Image ${index + 1}`}
+                                                alt={`${selectedProduct.name || 'Product'} ${index + 1}`}
                                                 style={{ 
                                                     width: 120, 
                                                     height: 120, 
@@ -635,7 +635,7 @@ const Product = () => {
                                     ) : (
                                         <img
                                             src="https://via.placeholder.com/120x120?text=No+Image"
-                                            alt="No image"
+                                            alt="No product image available"
                                             style={{ 
                                                 width: 120, 
                                                 height: 120, 

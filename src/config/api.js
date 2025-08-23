@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3002/api/';
+const API_BASE_URL = 'http://localhost:3002/api';
 
 export const API_ENDPOINTS = {
     AUTH: {
@@ -52,11 +52,13 @@ export const API_ENDPOINTS = {
         SEARCH: `${API_BASE_URL}/sale-products/search`,
         BY_CATEGORY: (categoryCode) => `${API_BASE_URL}/sale-products/category/${categoryCode}`,
         TOP_DISCOUNT: `${API_BASE_URL}/sale-products/top-discount`,
+        BEST_SELLING: `${API_BASE_URL}/sale-products/best-selling`,
         DETAIL: (id) => `${API_BASE_URL}/sale-products/${id}`,
         CREATE: `${API_BASE_URL}/sale-products/add`,
         UPDATE: (id) => `${API_BASE_URL}/sale-products/${id}`,
         DELETE: (id) => `${API_BASE_URL}/sale-products/${id}`,
         UPDATE_DISCOUNT_STATUS: (id) => `${API_BASE_URL}/sale-products/${id}/discount-status`,
+        UPDATE_SOLD_COUNT: (id) => `${API_BASE_URL}/sale-products/${id}/sold`,
     }
 };
 
@@ -401,6 +403,18 @@ export const saleProductAPI = {
     updateDiscountStatus: async (id, isDiscount) => {
         const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.UPDATE_DISCOUNT_STATUS(id), {
             method: 'PUT', headers: getHeaders(), body: JSON.stringify({ isDiscount })
+        });
+        return handleResponse(res);
+    },
+    updateSoldCount: async (id, soldCount) => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.UPDATE_SOLD_COUNT(id), {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify({ sold: soldCount })
+        });
+        return handleResponse(res);
+    },
+    getBestSellingProducts: async () => {
+        const res = await fetch(API_ENDPOINTS.SALE_PRODUCTS.BEST_SELLING, {
+            headers: getHeaders()
         });
         return handleResponse(res);
     }
