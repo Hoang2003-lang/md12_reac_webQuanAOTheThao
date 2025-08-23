@@ -6,9 +6,6 @@ const User = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(6);
 
@@ -37,38 +34,7 @@ const User = () => {
     fetchUsers();
   }, []);
 
-  const handleDeleteClick = (user) => {
-    setUserToDelete(user);
-    setShowDeleteModal(true);
-  };
 
-  const handleConfirmDelete = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3002/api/users/${userToDelete._id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setUsers(users.filter(user => user._id !== userToDelete._id));
-      setShowDeleteModal(false);
-      setUserToDelete(null);
-      
-      // Show success message
-      setShowSuccessMessage(true);
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-      }, 3000);
-    } catch (err) {
-      setError('Failed to delete user');
-    }
-  };
-
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setUserToDelete(null);
-  };
 
   // Add pagination calculations
   const indexOfLastUser = currentPage * usersPerPage;
@@ -91,17 +57,14 @@ const User = () => {
   if (error) return (
     <div className="error-container">
       <p>Lỗi: {error}</p>
+      <button onClick={() => window.location.reload()} className="btn-retry">
+        Thử lại
+      </button>
     </div>
   );
 
   return (
     <div className="user-management">
-      {showSuccessMessage && (
-        <div className="success-toast">
-          <span className="success-icon">✓</span>
-          <span>Xóa người dùng thành công!</span>
-        </div>
-      )}
 
       <div className="user-header">
         <h2>Quản lý người dùng</h2>
@@ -121,7 +84,6 @@ const User = () => {
               <th>Email</th>
               <th>Vai trò</th>
               <th>Ngày tạo</th>
-              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -136,15 +98,6 @@ const User = () => {
                   </span>
                 </td>
                 <td>{new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
-                <td>
-                  <button 
-                    onClick={() => handleDeleteClick(user)} 
-                    className="btn-delete"
-                    disabled={user.role === 'admin'}
-                  >
-                    Xóa
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>
@@ -176,30 +129,7 @@ const User = () => {
         >
           Sau
         </button>
-      </div>
-
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Xác nhận xóa</h3>
-            <p>Bạn có chắc chắn muốn xóa người dùng {userToDelete.name}?</p>
-            <div className="modal-actions" >
-              <button 
-                className="btn-cancel" 
-                onClick={handleCancelDelete}
-              >
-                Hủy
-              </button>
-              <button 
-                className="btn-confirm-delete" 
-                onClick={handleConfirmDelete}
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </div>
     </div>
   );
 };

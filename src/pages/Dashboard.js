@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Row, Col, Card, Statistic, Table, Progress, List, DatePicker, Space, Typography } from 'antd';
+import { Row, Col, Card, Statistic, Table, DatePicker, Space, Typography } from 'antd';
 import {
     ShoppingOutlined,
     UserOutlined,
     DollarOutlined,
     InboxOutlined
 } from '@ant-design/icons';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { productAPI, userAPI, orderAPI } from '../config/api';
 import dayjs from 'dayjs';
 const { Title } = Typography;
@@ -41,7 +42,6 @@ const Dashboard = () => {
     const [revenue, setRevenue] = useState(0);
     const [fromDate, setFromDate] = useState(dayjs().startOf('month'));
     const [toDate, setToDate] = useState(dayjs());
-    const totalSales = topProducts.reduce((sum, p) => sum + p.sales, 0);
 
     const fetchDashboardData = useCallback(async () => {
         try {
@@ -58,45 +58,21 @@ const Dashboard = () => {
             const totalRevenue = data
                 .filter(o => o.status === 'delivered')
                 .reduce((sum, o) => sum + Number(o.finalTotal || 0), 0);
-            const today = dayjs().startOf('day');
-            const todayOrders = data
-                .filter(o => o.status === 'delivered' && dayjs(o.createdAt).isAfter(today))
-                .reduce((sum, o) => {
-                    const items = o.items || [];
-                    return sum + items.reduce((q, item) => q + (item.purchaseQuantity || 0), 0);
-                }, 0);
+            // Tính tổng số lượng bán từ trường sold của tất cả sản phẩm
+            const totalSoldToday = products.reduce((sum, product) => sum + (product.sold || 0), 0);
             setStats({
                 totalProducts,
                 totalUsers,
                 totalRevenue,
                 lowStockProducts,
-                todayOrders,
+                todayOrders: totalSoldToday,
             });
 
-            const productSalesMap = {};
-            const productNameMap = {};
-
-            data
-                .filter(order => order.status === 'delivered')
-                .forEach(order => {
-                    const items = order.items || order.cart || [];
-
-                    items.forEach(item => {
-                        const id = item.id_product || item.productId || item.id;
-                        const name = item.name;
-                        const quantity = item.purchaseQuantity || item.quantity || 1;
-
-                        if (id && name) {
-                            productSalesMap[id] = (productSalesMap[id] || 0) + quantity;
-                            productNameMap[id] = name;
-                        }
-                    });
-                });
-
-            const sortedTopProducts = Object.entries(productSalesMap)
-                .map(([id, sales]) => ({
-                    name: productNameMap[id],
-                    sales
+            // Sử dụng trường sold từ sản phẩm thay vì tính từ orders
+            const sortedTopProducts = products
+                .map(product => ({
+                    name: product.name,
+                    sales: product.sold || 0
                 }))
                 .sort((a, b) => b.sales - a.sales)
                 .slice(0, 5);
@@ -184,37 +160,37 @@ const Dashboard = () => {
                         loading={loading}
                         style={{ marginBottom: 24 }}
                     >
-                        <List
-                            dataSource={topProducts}
-                            renderItem={(item, index) => (
-                                <List.Item key={index}>
-                                    <List.Item.Meta
-                                        avatar={
-                                            <div
-                                                style={{
-                                                    width: 24,
-                                                    textAlign: 'center',
-                                                    fontWeight: 'bold',
-                                                    color: index < 3 ? '#1890ff' : 'inherit'
-                                                }}
-                                            >
-                                                #{index + 1}
-                                            </div>
-                                        }
-                                        title={item.name}
-                                    />
-                                    <div>
-                                        <Progress
-                                            percent={totalSales > 0 ? Math.round((item.sales / totalSales) * 100) : 0}
-                                            size="small"
-                                            status="active"
-                                            style={{ width: 120 }}
-                                            format={(percent) => `${percent}%`}
-                                        />
-                                    </div>
-                                </List.Item>
-                            )}
-                        />
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={topProducts}
+                                margin={{
+                                    top: 20,
+                                    right: 30,
+                                    left: 20,
+                                    bottom: 5,
+                                }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis 
+                                    dataKey="name" 
+                                    angle={-45}
+                                    textAnchor="end"
+                                    height={80}
+                                    interval={0}
+                                    tick={{ fontSize: 12 }}
+                                />
+                                <YAxis />
+                                <Tooltip 
+                                    formatter={(value, name) => [value, 'Số lượng bán']}
+                                    labelFormatter={(label) => `Sản phẩm: ${label}`}
+                                />
+                                <Bar 
+                                    dataKey="sales" 
+                                    fill="#1890ff" 
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </Card>
                 </Col>
 
@@ -260,48 +236,6 @@ const Dashboard = () => {
                 </Col>
 
             </Row>
-
-            <Card
-                title="Sản phẩm sắp hết hàng"
-                loading={loading}
-                style={{ marginBottom: 24 }}
-            >
-                <Table
-                    dataSource={stats.lowStockProducts}
-                    rowKey="_id"
-                    pagination={false}
-                    size="small"
-                    columns={[
-                        {
-                            title: 'Tên sản phẩm',
-                            dataIndex: 'name',
-                            key: 'name',
-                        },
-                        {
-                            title: 'Tồn kho',
-                            dataIndex: 'stock',
-                            key: 'stock',
-                            render: (stock) => (
-                                <span style={{ color: stock < 5 ? '#cf1322' : '#faad14' }}>
-                                    {stock}
-                                </span>
-                            ),
-                        },
-                        {
-                            title: 'Trạng thái',
-                            key: 'status',
-                            render: (_, record) => (
-                                <Progress
-                                    percent={Math.round((record.stock / 10) * 100)}
-                                    size="small"
-                                    status={record.stock < 5 ? "exception" : "active"}
-                                    style={{ width: 80 }}
-                                />
-                            ),
-                        },
-                    ]}
-                />
-            </Card>
 
             <Card title="Sản phẩm mới thêm" loading={loading}>
                 <Table
