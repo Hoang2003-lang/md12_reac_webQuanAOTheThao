@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
     },
     ORDERS: {
         LIST: `${API_BASE_URL}/orders`,
+        SEARCH: `${API_BASE_URL}/orders/search`,
         DETAIL: (id) => `${API_BASE_URL}/orders/${id}`,
         CREATE: `${API_BASE_URL}/orders/add`,
         UPDATE_STATUS: (id) => `${API_BASE_URL}/orders/${id}/status`,

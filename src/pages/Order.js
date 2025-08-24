@@ -86,19 +86,6 @@ const Order = () => {
       alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
     }
   };
-
-  // const handleReturned = async (id) => {
-  //   if (!id) return alert('Lỗi: ID đơn hàng không hợp lệ.');
-  //   try {
-  //     await orderAPI.updateOrderStatus(id, 'returned');
-  //     setOrders(orders.map(o => o._id === id ? { ...o, status: 'returned' } : o));
-  //     setActiveOrderId(null);
-  //     alert('Đã chuyển sang trạng thái Đã trả hàng!');
-  //   } catch (err) {
-  //     alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
-  //   }
-  // };
-
   const toggleActions = (id) => {
     setActiveOrderId(prevId => (prevId === id ? null : id));
   };
@@ -338,27 +325,89 @@ const Order = () => {
       {/* Add pagination controls */}
       <div className="pagination">
         <button
-          className="btn btn-pagination"
+          className="btn btn-pagination prev"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="15,18 9,12 15,6"></polyline>
+          </svg>
           Trước
         </button>
-        {[...Array(totalPages)].map((_, index) => (
-          <button
-            key={index + 1}
-            className={`btn btn-pagination ${currentPage === index + 1 ? 'active' : ''}`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
+        
+        <div className="pagination-numbers">
+          {totalPages <= 7 ? (
+            // Hiển thị tất cả số trang nếu <= 7
+            [...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                className={`btn btn-pagination ${currentPage === index + 1 ? 'active' : ''}`}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))
+          ) : (
+            // Hiển thị smart pagination nếu > 7
+            <>
+              {/* Trang đầu */}
+              <button
+                className={`btn btn-pagination ${currentPage === 1 ? 'active' : ''}`}
+                onClick={() => handlePageChange(1)}
+              >
+                1
+              </button>
+              
+              {/* Dấu ... đầu */}
+              {currentPage > 4 && (
+                <span className="pagination-ellipsis">...</span>
+              )}
+              
+              {/* Các trang giữa */}
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                if (pageNum > 1 && pageNum < totalPages && 
+                    pageNum >= currentPage - 1 && pageNum <= currentPage + 1) {
+                  return (
+                    <button
+                      key={pageNum}
+                      className={`btn btn-pagination ${currentPage === pageNum ? 'active' : ''}`}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                }
+                return null;
+              })}
+              
+              {/* Dấu ... cuối */}
+              {currentPage < totalPages - 3 && (
+                <span className="pagination-ellipsis">...</span>
+              )}
+              
+              {/* Trang cuối */}
+              {totalPages > 1 && (
+                <button
+                  className={`btn btn-pagination ${currentPage === totalPages ? 'active' : ''}`}
+                  onClick={() => handlePageChange(totalPages)}
+                >
+                  {totalPages}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+        
         <button
-          className="btn btn-pagination"
+          className="btn btn-pagination next"
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
           Sau
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="9,18 15,12 9,6"></polyline>
+          </svg>
         </button>
       </div>
 
