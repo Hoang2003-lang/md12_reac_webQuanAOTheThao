@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css",
-    "main.js": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/js/main.b3bdf5e1.js",
-    "static/js/453.2bceef42.chunk.js": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js",
-    "static/media/logoF7.png": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/media/logoF7.164a531321e36976781a.png",
-    "index.html": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/index.html",
-    "main.e3bc8c6a.css.map": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css.map",
-    "main.b3bdf5e1.js.map": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/js/main.b3bdf5e1.js.map",
-    "453.2bceef42.chunk.js.map": "/Hoang2003-lang/md12_reac_webQuanAOTheThao/static/js/453.2bceef42.chunk.js.map"
+    "main.css": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css",
+    "main.js": "/md12_reac_webQuanAOTheThao/static/js/main.8d4a5279.js",
+    "static/js/453.a6b46c47.chunk.js": "/md12_reac_webQuanAOTheThao/static/js/453.a6b46c47.chunk.js",
+    "static/media/logoF7.png": "/md12_reac_webQuanAOTheThao/static/media/logoF7.164a531321e36976781a.png",
+    "index.html": "/md12_reac_webQuanAOTheThao/index.html",
+    "main.e3bc8c6a.css.map": "/md12_reac_webQuanAOTheThao/static/css/main.e3bc8c6a.css.map",
+    "main.8d4a5279.js.map": "/md12_reac_webQuanAOTheThao/static/js/main.8d4a5279.js.map",
+    "453.a6b46c47.chunk.js.map": "/md12_reac_webQuanAOTheThao/static/js/453.a6b46c47.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e3bc8c6a.css",
-    "static/js/main.b3bdf5e1.js"
+    "static/js/main.8d4a5279.js"
   ]
 }
