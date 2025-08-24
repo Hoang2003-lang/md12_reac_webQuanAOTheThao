@@ -160,7 +160,7 @@ const Dashboard = () => {
                         loading={loading}
                         style={{ marginBottom: 24 }}
                     >
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="80%" height={320}>
                             <BarChart
                                 data={topProducts}
                                 margin={{
