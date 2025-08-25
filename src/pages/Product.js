@@ -678,7 +678,7 @@ const Product = () => {
                             <th>Mã danh mục</th>
                             <th>Size</th>
                             <th>Màu sắc</th>
-                            <th>Mô tả</th>
+
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -712,7 +712,7 @@ const Product = () => {
                                 <td>{product.categoryCode || 'N/A'}</td>
                                 <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
                                 <td>{product.colors && product.colors.length > 0 ? product.colors.join(', ') : 'N/A'}</td>
-                                <td className="description-cell">{product.description || 'Không có mô tả'}</td>
+
                                 <td>
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
                                         <button
