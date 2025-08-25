@@ -282,11 +282,11 @@ const Order = () => {
                         >
                           {getStatusDisplay(order.status)}
                         </button>
-                        {activeOrderId === order._id && (
+                        {/* {activeOrderId === order._id && (
                           <div className="order-action-dropdown">
                             <button className="btn btn-confirm" onClick={() => handleDelivered(order._id)}>Chuyển sang Đã nhận hàng</button>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     ) : order.status === 'delivered' ? (
                       <div className="order-status-action-wrap">
