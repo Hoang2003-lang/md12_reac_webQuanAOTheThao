@@ -16,8 +16,8 @@ const Product = () => {
         sold: '',
         description: '',
         images: [''],
-        size: ['S', 'M', 'L', 'XL'],
-        colors: ['Đen', 'Trắng'],
+        size: ['M'],
+        colors: ['Đen'],
         categoryCode: ''
     });
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -142,6 +142,10 @@ const Product = () => {
             alert('Vui lòng chọn ít nhất một màu!');
             return;
         }
+        if (!newProduct.description.trim()) {
+            alert('Vui lòng nhập mô tả sản phẩm!');
+            return;
+        }
         try {
             // Filter out empty image URLs
             const filteredImages = newProduct.images.filter(img => img.trim() !== '');
@@ -165,8 +169,8 @@ const Product = () => {
                 sold: '',
                 description: '',
                 images: [''],
-                size: ['S', 'M', 'L', 'XL'],
-                colors: ['Đen', 'Trắng'],
+                size: ['M'],
+                colors: ['Đen'],
                 categoryCode: ''
             });
             alert('Thêm sản phẩm thành công!');
@@ -216,8 +220,8 @@ const Product = () => {
             sold: product.sold || '',
             description: product.description || '',
             images: product.images && product.images.length > 0 ? product.images : [''],
-            size: product.size || ['S', 'M', 'L', 'XL'],
-            colors: product.colors || ['Đen', 'Trắng'],
+            size: product.size || ['M'],
+            colors: product.colors || ['Đen'],
             categoryCode: product.categoryCode || ''
         });
         setShowEditForm(true);
@@ -240,6 +244,10 @@ const Product = () => {
         }
         if (newProduct.colors.length === 0) {
             alert('Vui lòng chọn ít nhất một màu!');
+            return;
+        }
+        if (!newProduct.description.trim()) {
+            alert('Vui lòng nhập mô tả sản phẩm!');
             return;
         }
         try {
@@ -268,8 +276,8 @@ const Product = () => {
                 sold: '',
                 description: '',
                 images: [''],
-                size: ['S', 'M', 'L', 'XL'],
-                colors: ['Đen', 'Trắng'],
+                size: ['M'],
+                colors: ['Đen'],
                 categoryCode: ''
             });
             alert('Cập nhật sản phẩm thành công!');
@@ -435,7 +443,7 @@ const Product = () => {
                         <div className="form-group">
                             <label>Màu sắc có sẵn:</label>
                             <div className="color-checkboxes">
-                                {['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Vàng'].map(color => (
+                                {['Đen', 'Trắng', 'Xanh'].map(color => (
                                     <label key={color} className="color-checkbox">
                                         <input
                                             type="checkbox"
@@ -575,7 +583,7 @@ const Product = () => {
                         <div className="form-group">
                             <label>Màu sắc có sẵn:</label>
                             <div className="color-checkboxes">
-                                {['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Vàng'].map(color => (
+                                {['Đen', 'Trắng', 'Xanh'].map(color => (
                                     <label key={color} className="color-checkbox">
                                         <input
                                             type="checkbox"
@@ -678,7 +686,6 @@ const Product = () => {
                             <th>Mã danh mục</th>
                             <th>Size</th>
                             <th>Màu sắc</th>
-
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -712,7 +719,6 @@ const Product = () => {
                                 <td>{product.categoryCode || 'N/A'}</td>
                                 <td>{product.size && product.size.length > 0 ? product.size.join(', ') : 'N/A'}</td>
                                 <td>{product.colors && product.colors.length > 0 ? product.colors.join(', ') : 'N/A'}</td>
-
                                 <td>
                                     <div className="action-buttons" onClick={e => e.stopPropagation()}>
                                         <button
