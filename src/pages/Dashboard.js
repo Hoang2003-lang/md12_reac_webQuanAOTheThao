@@ -58,14 +58,20 @@ const Dashboard = () => {
             const totalRevenue = data
                 .filter(o => o.status === 'delivered')
                 .reduce((sum, o) => sum + Number(o.finalTotal || 0), 0);
-            // Tính tổng số lượng bán từ trường sold của tất cả sản phẩm
-            const totalSoldToday = products.reduce((sum, product) => sum + (product.sold || 0), 0);
+
+            const today = dayjs().startOf('day');
+            const todayOrders = data
+                .filter(o => o.status === 'delivered' && dayjs(o.createdAt).isAfter(today))
+                .reduce((sum, o) => {
+                    const items = o.items || [];
+                    return sum + items.reduce((q, item) => q + (item.purchaseQuantity || 0), 0);
+                }, 0);
             setStats({
                 totalProducts,
                 totalUsers,
                 totalRevenue,
                 lowStockProducts,
-                todayOrders: totalSoldToday,
+                todayOrders,
             });
 
             // Sử dụng trường sold từ sản phẩm thay vì tính từ orders
@@ -100,7 +106,7 @@ const Dashboard = () => {
         <div>
             <h1 style={{ marginBottom: 24 }}>Tổng quan hệ thống</h1>
             <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={4}>
+                <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
                             title="Tổng số sản phẩm"
@@ -110,7 +116,7 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={5}>
+                <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
                             title="Người dùng"
@@ -120,7 +126,7 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={5}>
+                <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
                             title="Tổng doanh thu"
@@ -131,7 +137,7 @@ const Dashboard = () => {
                         />
                     </Card>
                 </Col>
-                <Col span={5}>
+                {/* <Col span={5}>
                     <Card loading={loading}>
                         <Statistic
                             title="Sản phẩm sắp hết hàng"
@@ -140,8 +146,8 @@ const Dashboard = () => {
                             valueStyle={{ color: '#faad14' }}
                         />
                     </Card>
-                </Col>
-                <Col span={5}>
+                </Col> */}
+                <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
                             title="Số lượng bán hôm nay"
@@ -171,8 +177,8 @@ const Dashboard = () => {
                                 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis 
-                                    dataKey="name" 
+                                <XAxis
+                                    dataKey="name"
                                     angle={-45}
                                     textAnchor="end"
                                     height={80}
@@ -180,13 +186,13 @@ const Dashboard = () => {
                                     tick={{ fontSize: 12 }}
                                 />
                                 <YAxis />
-                                <Tooltip 
+                                <Tooltip
                                     formatter={(value, name) => [value, 'Số lượng bán']}
                                     labelFormatter={(label) => `Sản phẩm: ${label}`}
                                 />
-                                <Bar 
-                                    dataKey="sales" 
-                                    fill="#1890ff" 
+                                <Bar
+                                    dataKey="sales"
+                                    fill="#1890ff"
                                     radius={[4, 4, 0, 0]}
                                 />
                             </BarChart>
