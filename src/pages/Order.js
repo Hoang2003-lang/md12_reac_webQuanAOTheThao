@@ -69,23 +69,13 @@ const Order = () => {
       await orderAPI.updateOrderStatus(id, 'shipped');
       setOrders(orders.map(o => o._id === id ? { ...o, status: 'shipped' } : o));
       setActiveOrderId(null);
-      alert('Đã chuyển sang trạng thái Đã giao hàng!');
+      alert('Đã chuyển sang trạng thái Đang giao hàng!');
     } catch (err) {
       alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
     }
   };
 
-  const handleDelivered = async (id) => {
-    if (!id) return alert('Lỗi: ID đơn hàng không hợp lệ.');
-    try {
-      await orderAPI.updateOrderStatus(id, 'delivered');
-      setOrders(orders.map(o => o._id === id ? { ...o, status: 'delivered' } : o));
-      setActiveOrderId(null);
-      alert('Đã chuyển sang trạng thái Đã nhận hàng!');
-    } catch (err) {
-      alert('Không thể chuyển trạng thái: ' + (err.message || 'Lỗi không xác định'));
-    }
-  };
+  
   const toggleActions = (id) => {
     setActiveOrderId(prevId => (prevId === id ? null : id));
   };
@@ -121,7 +111,7 @@ const Order = () => {
       case 'cancelled':
         return 'Đã hủy';
       case 'shipped':
-        return 'Đã giao hàng';
+        return 'Đang giao hàng';
       case 'delivered':
         return 'Đã nhận hàng';
       case 'returned':
@@ -270,7 +260,7 @@ const Order = () => {
                         </button>
                         {activeOrderId === order._id && (
                           <div className="order-action-dropdown">
-                            <button className="btn btn-confirm" onClick={() => handleShipped(order._id)}>Chuyển sang Đã giao hàng</button>
+                            <button className="btn btn-confirm" onClick={() => handleShipped(order._id)}>Chuyển sang đang giao hàng</button>
                           </div>
                         )}
                       </div>
