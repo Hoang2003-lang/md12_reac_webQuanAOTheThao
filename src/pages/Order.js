@@ -21,7 +21,29 @@ const Order = () => {
     try {
       setLoading(true);
       const data = await orderAPI.getAllOrders();
-      setOrders(data);
+      
+      // Debug: Log the data to see what we're getting
+      console.log('Raw orders data:', data);
+      
+      // Validate and clean the data
+      let cleanedOrders = [];
+      if (Array.isArray(data)) {
+        // Remove duplicates based on _id
+        const uniqueOrders = data.filter((order, index, self) => 
+          index === self.findIndex(o => o._id === order._id)
+        );
+        
+        // Sort by creation date (newest first)
+        cleanedOrders = uniqueOrders.sort((a, b) => {
+          const dateA = new Date(a.createdAt || a.created_at || 0);
+          const dateB = new Date(b.createdAt || b.created_at || 0);
+          return dateB - dateA;
+        });
+        
+        console.log('Cleaned orders:', cleanedOrders);
+      }
+      
+      setOrders(cleanedOrders);
       setError(null);
     } catch (err) {
       setError('Không thể tải danh sách đơn hàng');
@@ -193,6 +215,7 @@ const Order = () => {
             <th>PHƯƠNG THỨC</th>
             <th>TRẠNG THÁI & THAO TÁC</th>
             <th>NGÀY ĐẶT</th>
+            <th>DEBUG</th>
           </tr>
         </thead>
         <tbody>
@@ -206,6 +229,21 @@ const Order = () => {
             currentOrders.map(order => {
               const voucherDiscount = getVoucherDiscount(order);
               const firstItem = order.items && order.items[0] ? order.items[0] : {};
+              
+              // Validate order data
+              if (!order._id) {
+                console.warn('Order without _id:', order);
+                return null;
+              }
+              
+              // Debug: Log order details
+              console.log('Rendering order:', {
+                _id: order._id,
+                itemsCount: order.items?.length || 0,
+                firstItem: firstItem,
+                status: order.status
+              });
+              
               return (
                 <tr key={order._id}>
                   <td>
@@ -218,16 +256,23 @@ const Order = () => {
                       ? `${order.userId._id.substring(0, 3)}...${order.userId._id.slice(-4)}`
                       : order.userId
                         ? `${order.userId.substring(0, 3)}...${order.userId.slice(-4)}`
-                        : ''
+                        : 'N/A'
                     }
                   </td>
-                  <td>{firstItem.name || ''}</td>
-                  <td>{firstItem.purchaseQuantity || ''}</td>
-                  <td>{firstItem.price ? firstItem.price.toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
+                  <td>
+                    {firstItem.name || 'Không có tên sản phẩm'}
+                    {order.items && order.items.length > 1 && (
+                      <span style={{ color: '#666', fontSize: '12px' }}>
+                        {' '}(+{order.items.length - 1} sản phẩm khác)
+                      </span>
+                    )}
+                  </td>
+                  <td>{firstItem.purchaseQuantity || '0'}</td>
+                  <td>{firstItem.price ? firstItem.price.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
                   <td>{order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
                   <td>{voucherDiscount ? voucherDiscount.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
                   <td>{order.finalTotal ? order.finalTotal.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ'}</td>
-                  <td>{order.shippingAddress || ''}</td>
+                  <td>{order.shippingAddress || 'Chưa cập nhật'}</td>
                   <td>{order.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : order.paymentMethod || 'COD'}</td>
                   <td style={{ position: 'relative' }}>
                     {order.status === 'waiting' ? (
@@ -309,6 +354,10 @@ const Order = () => {
                     )}
                   </td>
                   <td>{formatDate(order.createdAt)}</td>
+                  <td style={{ fontSize: '12px', color: '#666' }}>
+                    ID: {order._id?.substring(0, 8)}...<br/>
+                    Items: {order.items?.length || 0}
+                  </td>
                 </tr>
               );
             })
@@ -426,11 +475,15 @@ const Order = () => {
                 </>
               )}
               <div><b>Địa chỉ:</b> {modalOrder.shippingAddress || 'Không có địa chỉ'}</div>
-              <div><b>Thông tin sản phẩm:</b> {modalOrder.items && modalOrder.items.map((item, idx) => (
-                <span key={item.productId || idx}>
-                  {item.name} (SL: {item.purchaseQuantity}, Size: {item.size || 'N/A'}, Giá: {item.price ? item.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}){idx < modalOrder.items.length - 1 ? ', ' : ''}
-                </span>
-              ))}</div>
+              <div><b>Thông tin sản phẩm:</b></div>
+              {modalOrder.items && modalOrder.items.map((item, idx) => (
+                <div key={item.productId || idx} style={{ marginLeft: '20px', marginBottom: '10px' }}>
+                  • {item.name || 'Không có tên'} 
+                  (SL: {item.purchaseQuantity || 0}, 
+                  Size: {item.size || 'N/A'}, 
+                  Giá: {item.price ? item.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'})
+                </div>
+              ))}
               {modalOrder.voucher && (
                 <div><b>Mã giảm giá:</b> {modalOrder.voucher.code || 'N/A'} (Giảm: {modalOrder.voucher.discountAmount?.toLocaleString('vi-VN') || '0'} VNĐ)</div>
               )}
