@@ -500,7 +500,6 @@ const Voucher = () => {
                                 <p><b>Giá trị đơn hàng tối thiểu:</b> {selectedVoucher.minOrderAmount ? selectedVoucher.minOrderAmount.toLocaleString('vi-VN') : 0} VNĐ</p>
                                 <p><b>Giới hạn mỗi người dùng:</b> {selectedVoucher.usageLimitPerUser || 0}</p>
                                 <p><b>Tổng lượt sử dụng:</b> {selectedVoucher.totalUsageLimit || 0}</p>
-                                <p><b>Đã sử dụng:</b> {selectedVoucher.usedCount || 0}</p>
                                 <p><b>Ngày bắt đầu:</b> {selectedVoucher.startDate ? new Date(selectedVoucher.startDate).toLocaleDateString('vi-VN') : ''}</p>
                                 <p><b>Ngày hết hạn:</b> {selectedVoucher.expireDate ? new Date(selectedVoucher.expireDate).toLocaleDateString('vi-VN') : ''}</p>
                                 <p><b>Mô tả:</b> {selectedVoucher.description || 'Không có mô tả'}</p>
@@ -522,9 +521,8 @@ const Voucher = () => {
                             <th>Loại</th>
                             <th>Giá trị giảm</th>
                             <th>Giảm tối đa</th>
-                            <th>Giá trị tối thiểu</th>
-                            <th>Đã sử dụng</th>
-                            <th>Ngày bắt đầu</th>
+                                                         <th>Giá trị tối thiểu</th>
+                             <th>Ngày bắt đầu</th>
                             <th>Ngày hết hạn</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
@@ -543,9 +541,8 @@ const Voucher = () => {
                                         : `${voucher.discount ? voucher.discount.toLocaleString('vi-VN') : 0} VNĐ`}
                                 </td>
                                 <td>{voucher.maxDiscount ? voucher.maxDiscount.toLocaleString('vi-VN') : 0} VNĐ</td>
-                                <td>{voucher.minOrderAmount ? voucher.minOrderAmount.toLocaleString('vi-VN') : 0} VNĐ</td>
-                                <td>{voucher.usedCount || 0}/{voucher.totalUsageLimit || 0}</td>
-                                <td>{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : ''}</td>
+                                                                 <td>{voucher.minOrderAmount ? voucher.minOrderAmount.toLocaleString('vi-VN') : 0} VNĐ</td>
+                                 <td>{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : ''}</td>
                                 <td>{voucher.expireDate ? new Date(voucher.expireDate).toLocaleDateString('vi-VN') : ''}</td>
                                 <td>
                                     <span className={`status ${voucher.status === 'active' ? 'active' : 'inactive'}`}>
