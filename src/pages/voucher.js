@@ -85,7 +85,7 @@ const Voucher = () => {
                 createdBy: 'admin',
                 status: newVoucher.status,
             };
-            console.log("📦 Data gửi đi:", voucherData);
+            console.log("Data gửi đi:", voucherData);
 
             const response = await axios.post('http://localhost:3002/api/vouchers/add', voucherData);
             const newVoucherData = response.data.data;

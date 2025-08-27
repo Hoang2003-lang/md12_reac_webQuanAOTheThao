@@ -180,19 +180,7 @@ const Product = () => {
         }
     };
 
-    // Delete product
-    const handleDelete = async (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            try {
-                await productAPI.deleteProduct(id);
-                setProducts(products.filter(p => p._id !== id));
-                alert('Xóa sản phẩm thành công!');
-            } catch (err) {
-                alert('Không thể xóa sản phẩm');
-                console.error('Error deleting product:', err);
-            }
-        }
-    };
+
 
     // Xem chi tiết sản phẩm
     const handleShowDetail = async (id) => {
@@ -643,7 +631,7 @@ const Product = () => {
                                     ) : (
                                         <img
                                             src="https://via.placeholder.com/120x120?text=No+Image"
-                                            alt="No product image available"
+                                            alt="No product available"
                                             style={{ 
                                                 width: 120, 
                                                 height: 120, 
@@ -730,15 +718,7 @@ const Product = () => {
                                         >
                                             Sửa
                                         </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(product._id);
-                                            }}
-                                            className="btn btn-delete"
-                                        >
-                                            Xóa
-                                        </button>
+
                                     </div>
                                 </td>
                             </tr>

@@ -21,7 +21,7 @@ const AdminChat = () => {
     socketRef.current = io('http://localhost:3002');
 
     socketRef.current.on('connect', () => {
-      console.log('🔌 Kết nối socket thành công');
+      console.log('Kết nối socket thành công');
     });
 
     socketRef.current.on('new message', (msg) => {
@@ -90,7 +90,7 @@ const AdminChat = () => {
 
       setChatList(filteredChats);
     } catch (err) {
-      console.error('❌ Lỗi load danh sách chat:', err);
+      console.error('Lỗi load danh sách chat:', err);
       // Hiển thị thông báo lỗi cho user
       if (err.response?.status === 500) {
         console.error('Backend error - User model not registered');
@@ -125,7 +125,7 @@ const AdminChat = () => {
       .then(res => {
         setMessages(res.data.data.messages || []);
       })
-      .catch(err => console.error('❌ Lỗi load tin nhắn:', err));
+      .catch(err => console.error('Lỗi load tin nhắn:', err));
   }, [selectedChat]);
 
   // Auto scroll xuống tin nhắn mới nhất
@@ -153,7 +153,7 @@ const AdminChat = () => {
     try {
       // Gửi tin nhắn qua API
       // const response = await axios.post('http://localhost:3002/api/chats/message', msgData);
-      
+
       // Tạo tin nhắn mới để hiển thị ngay lập tức
       // const sentMsg = {
       //   _id: response.data.data._id,
@@ -168,13 +168,13 @@ const AdminChat = () => {
 
       // Cập nhật UI ngay lập tức
       // setMessages(prev => [...prev, sentMsg]);
-      
+
       // Gửi qua socket để thông báo cho user khác
       socketRef.current.emit('send message', msgData);
-      
+
       setMessage('');
     } catch (err) {
-      console.error('❌ Gửi tin nhắn lỗi:', err);
+      console.error('Gửi tin nhắn lỗi:', err);
       alert('Không gửi được tin nhắn!');
     }
   };
@@ -204,7 +204,7 @@ const AdminChat = () => {
         userId: adminId,
         emoji: emoji
       });
-      
+
       // Gửi qua socket để thông báo real-time
       socketRef.current.emit('reaction message', {
         chatId: selectedChat.chatId,
@@ -213,7 +213,7 @@ const AdminChat = () => {
         emoji
       });
     } catch (err) {
-      console.error('❌ Lỗi reaction:', err);
+      console.error('Lỗi reaction:', err);
     }
   };
 
@@ -221,14 +221,14 @@ const AdminChat = () => {
     try {
       // Gọi API để xóa tin nhắn
       await axios.delete(`http://localhost:3002/api/chats/message/${messageId}`);
-      
+
       // Gửi qua socket để thông báo real-time
       socketRef.current.emit('delete message', {
         chatId: selectedChat.chatId,
         messageId
       });
     } catch (err) {
-      console.error('❌ Lỗi xóa tin nhắn:', err);
+      console.error('Lỗi xóa tin nhắn:', err);
     }
   };
 
@@ -246,7 +246,7 @@ const AdminChat = () => {
       setSelectedChat(null);
       setMessages([]);
     } catch (err) {
-      console.error('❌ Lỗi xoá đoạn chat:', err);
+      console.error('Lỗi xoá đoạn chat:', err);
       alert('Không thể xoá đoạn chat');
     }
   };
