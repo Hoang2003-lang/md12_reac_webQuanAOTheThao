@@ -205,13 +205,12 @@ const Order = () => {
             <th>PHƯƠNG THỨC</th>
             <th>TRẠNG THÁI & THAO TÁC</th>
             <th>NGÀY ĐẶT</th>
-            <th>DEBUG</th>
           </tr>
         </thead>
         <tbody>
           {orders.length === 0 ? (
             <tr>
-              <td colSpan={12} style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
+              <td colSpan={11} style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
                 Không có đơn hàng nào
               </td>
             </tr>
@@ -344,19 +343,15 @@ const Order = () => {
                     )}
                   </td>
                   <td>{formatDate(order.createdAt)}</td>
-                  <td style={{ fontSize: '12px', color: '#666' }}>
-                    ID: {order._id?.substring(0, 8)}...<br/>
-                    Items: {order.items?.length || 0}
-                  </td>
                 </tr>
               );
             })
           )}
           <tr>
-            <td colSpan={13} style={{ height: '40px', background: 'transparent' }}></td>
+            <td colSpan={12} style={{ height: '40px', background: 'transparent' }}></td>
           </tr>
           <tr>
-            <td colSpan={13} style={{ height: '40px', background: 'transparent' }}></td>
+            <td colSpan={12} style={{ height: '40px', background: 'transparent' }}></td>
           </tr>
         </tbody>
       </table>
