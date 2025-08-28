@@ -466,6 +466,7 @@ const Order = () => {
                   • {item.name || 'Không có tên'} 
                   (SL: {item.purchaseQuantity || 0}, 
                   Size: {item.size || 'N/A'}, 
+                  Màu: {item.color || 'N/A'},
                   Giá: {item.price ? item.price.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'})
                 </div>
               ))}
