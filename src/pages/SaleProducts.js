@@ -10,6 +10,20 @@ const SaleProducts = () => {
   const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [newSaleProduct, setNewSaleProduct] = useState({
+    name: '',
+    price: 0,
+    discount_percent: 0,
+    discount_price: 0,
+    stock: 0,
+    sold: 0,
+    description: '',
+    images: [''], // 👈 mảng để nhập nhiều ảnh
+    size: [],
+    colors: [],
+    categoryCode: '',
+    isDiscount: true
+  });
 
   useEffect(() => {
     fetchSaleProducts();
@@ -43,8 +57,38 @@ const SaleProducts = () => {
     }
   };
 
+
+  const handleSaleImagesChange = (index, value) => {
+    setNewSaleProduct(prev => {
+      const newImages = [...prev.images];
+      newImages[index] = value;
+      return { ...prev, images: newImages };
+    });
+  };
+
+  const addSaleImageField = () => {
+    setNewSaleProduct(prev => ({
+      ...prev,
+      images: [...prev.images, '']
+    }));
+  };
+
+  const removeSaleImageField = (index) => {
+    setNewSaleProduct(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+  // const handleEdit = (product) => {
+  //   setEditingProduct(product);
+  //   setShowForm(true);
+  // };
   const handleEdit = (product) => {
     setEditingProduct(product);
+    setNewSaleProduct({
+      ...product,
+      images: Array.isArray(product.images) && product.images.length > 0 ? product.images : ['']
+    });
     setShowForm(true);
   };
 
@@ -64,13 +108,13 @@ const SaleProducts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     // Debug: Log all form data
     console.log('Form data entries:');
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-    
+
     // Validate required fields
     const name = formData.get('name')?.trim();
     const price = parseInt(formData.get('price'));
@@ -78,14 +122,14 @@ const SaleProducts = () => {
     const stock = parseInt(formData.get('stock'));
     const sold = parseInt(formData.get('sold'));
     const description = formData.get('description')?.trim();
-    const image = formData.get('image')?.trim();
+    const validImages = newSaleProduct.images.filter(img => img.trim() !== '');
     const size = formData.get('size')?.trim();
     const colors = formData.get('colors')?.trim();
     const categoryCode = formData.get('categoryCode')?.trim();
 
     // Debug: Log individual field values
     console.log('Field values:', {
-      name, price, discountPercent, stock, sold, description, image, size, colors, categoryCode
+      name, price, discountPercent, stock, sold, description, validImages, size, colors, categoryCode
     });
 
     // Check for required fields with specific error messages
@@ -95,7 +139,7 @@ const SaleProducts = () => {
     if (!discountPercent) missingFields.push('Phần trăm giảm giá');
     if (!stock) missingFields.push('Số lượng tồn kho');
     if (!description) missingFields.push('Mô tả');
-    if (!image) missingFields.push('Hình ảnh');
+    if (!validImages) missingFields.push('Hình ảnh');
     if (!size) missingFields.push('Kích thước');
     if (!colors) missingFields.push('Màu sắc');
     if (!categoryCode) missingFields.push('Mã danh mục');
@@ -110,7 +154,7 @@ const SaleProducts = () => {
           input.style.backgroundColor = '#fff5f5';
         }
       });
-      
+
       alert(`Vui lòng nhập đầy đủ thông tin: ${missingFields.join(', ')}`);
       return;
     }
@@ -122,56 +166,57 @@ const SaleProducts = () => {
     }
 
     const discountPrice = Math.round(price * (1 - discountPercent / 100));
-    
+
+
     const productData = {
       name,
       price,
       discount_percent: discountPercent,
       stock,
-      sold: sold ?? 0, // mặc định 0 nếu null/undefined
+      sold: sold ?? 0,
       description,
-      images: [image], // 👈 sửa ở đây: BE yêu cầu mảng
+      images: validImages, // 👈 lấy nhiều ảnh
       size: size.split(',').map(s => s.trim()).filter(Boolean),
       colors: colors.split(',').map(c => c.trim()).filter(Boolean),
-      categoryCode,      // 👈 giữ nguyên camelCase
+      categoryCode,
       isDiscount: true
     };
-    
+
 
     try {
       console.log('Sending product data:', productData);
-      
-             if (editingProduct) {
-         // Update existing product
-         const updatedProduct = await saleProductAPI.updateSaleProduct(editingProduct._id, productData);
-         setSaleProducts(saleProducts.map(p =>
-           p._id === editingProduct._id ? {
-             ...updatedProduct,
-             price: updatedProduct.price || 0,
-             discount_price: updatedProduct.discount_price || 0,
-             discount_percent: updatedProduct.discount_percent || 0,
-             stock: updatedProduct.stock || 0,
-             sold: updatedProduct.sold || 0,
-             size: Array.isArray(updatedProduct.size) ? updatedProduct.size : [],
-             colors: Array.isArray(updatedProduct.colors) ? updatedProduct.colors : [],
-             images: Array.isArray(updatedProduct.images) ? updatedProduct.images : []
-           } : p
-         ));
-       } else {
-         // Add new product
-         const newProduct = await saleProductAPI.createSaleProduct(productData);
-         setSaleProducts([...saleProducts, {
-           ...newProduct,
-           price: newProduct.price || 0,
-           discount_price: newProduct.discount_price || 0,
-           discount_percent: newProduct.discount_percent || 0,
-           stock: newProduct.stock || 0,
-           sold: newProduct.sold || 0,
-           size: Array.isArray(newProduct.size) ? newProduct.size : [],
-           colors: Array.isArray(newProduct.colors) ? newProduct.colors : [],
-           images: Array.isArray(newProduct.images) ? newProduct.images : []
-         }]);
-       }
+
+      if (editingProduct) {
+        // Update existing product
+        const updatedProduct = await saleProductAPI.updateSaleProduct(editingProduct._id, productData);
+        setSaleProducts(saleProducts.map(p =>
+          p._id === editingProduct._id ? {
+            ...updatedProduct,
+            price: updatedProduct.price || 0,
+            discount_price: updatedProduct.discount_price || 0,
+            discount_percent: updatedProduct.discount_percent || 0,
+            stock: updatedProduct.stock || 0,
+            sold: updatedProduct.sold || 0,
+            size: Array.isArray(updatedProduct.size) ? updatedProduct.size : [],
+            colors: Array.isArray(updatedProduct.colors) ? updatedProduct.colors : [],
+            images: Array.isArray(updatedProduct.images) ? updatedProduct.images : []
+          } : p
+        ));
+      } else {
+        // Add new product
+        const newProduct = await saleProductAPI.createSaleProduct(productData);
+        setSaleProducts([...saleProducts, {
+          ...newProduct,
+          price: newProduct.price || 0,
+          discount_price: newProduct.discount_price || 0,
+          discount_percent: newProduct.discount_percent || 0,
+          stock: newProduct.stock || 0,
+          sold: newProduct.sold || 0,
+          size: Array.isArray(newProduct.size) ? newProduct.size : [],
+          colors: Array.isArray(newProduct.colors) ? newProduct.colors : [],
+          images: Array.isArray(newProduct.images) ? newProduct.images : []
+        }]);
+      }
 
       setShowForm(false);
       setEditingProduct(null);
@@ -261,9 +306,32 @@ const SaleProducts = () => {
     <div className="sale-products-container">
       <div className="sale-products-header">
         <h2>Quản lý sản phẩm giảm giá</h2>
-        <button
+        {/* <button
           className="add-product-btn"
           onClick={() => setShowForm(true)}
+        >
+          Thêm sản phẩm
+        </button> */}
+        <button
+          className="add-product-btn"
+          onClick={() => {
+            setEditingProduct(null);
+            setNewSaleProduct({
+              name: '',
+              price: 0,
+              discount_percent: 0,
+              discount_price: 0,
+              stock: 0,
+              sold: 0,
+              description: '',
+              images: [''], // reset về 1 ô input ảnh
+              size: [],
+              colors: [],
+              categoryCode: '',
+              isDiscount: true
+            });
+            setShowForm(true);
+          }}
         >
           Thêm sản phẩm
         </button>
@@ -287,9 +355,9 @@ const SaleProducts = () => {
               </div>
 
               <div className="form-row">
-                                 <div className="form-group">
-                   <label>Giá gốc (VNĐ):</label>
-                                     <input
+                <div className="form-group">
+                  <label>Giá gốc (VNĐ):</label>
+                  <input
                     type="number"
                     name="price"
                     defaultValue={editingProduct?.price || ''}
@@ -297,10 +365,10 @@ const SaleProducts = () => {
                     onFocus={clearFieldError}
                     required
                   />
-                 </div>
-                 <div className="form-group">
-                   <label>Phần trăm giảm giá (%):</label>
-                                     <input
+                </div>
+                <div className="form-group">
+                  <label>Phần trăm giảm giá (%):</label>
+                  <input
                     type="number"
                     name="discount_percent"
                     min="0"
@@ -310,20 +378,20 @@ const SaleProducts = () => {
                     onFocus={clearFieldError}
                     required
                   />
-                 </div>
+                </div>
               </div>
 
               <div className="form-row">
-                                 <div className="form-group">
-                   <label>Giá sau giảm (VNĐ):</label>
-                   <input
-                     type="number"
-                     name="discount_price"
-                     defaultValue={editingProduct?.discount_price || ''}
-                     readOnly
-                     style={{ backgroundColor: '#f5f5f5' }}
-                   />
-                 </div>
+                <div className="form-group">
+                  <label>Giá sau giảm (VNĐ):</label>
+                  <input
+                    type="number"
+                    name="discount_price"
+                    defaultValue={editingProduct?.discount_price || ''}
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
+                  />
+                </div>
                 <div className="form-group">
                   <label>Số lượng tồn kho:</label>
                   <input
@@ -356,7 +424,7 @@ const SaleProducts = () => {
                   required
                 />
               </div>
-
+              {/* 
               <div className="form-group">
                 <label>Hình ảnh (URL):</label>
                 <input
@@ -365,6 +433,37 @@ const SaleProducts = () => {
                   defaultValue={editingProduct?.image || ''}
                   required
                 />
+              </div> */}
+
+              <div className="form-group">
+                <label>Link hình ảnh:</label>
+                {newSaleProduct.images.map((image, index) => (
+                  <div key={index} className="image-input-group">
+                    <input
+                      type="url"
+                      value={image}
+                      onChange={(e) => handleSaleImagesChange(index, e.target.value)}
+                      placeholder={`Link hình ảnh ${index + 1}`}
+                      required={index === 0}
+                    />
+                    {newSaleProduct.images.length > 1 && (
+                      <button
+                        type="button"
+                        className="btn btn-remove"
+                        onClick={() => removeSaleImageField(index)}
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-add-image"
+                  onClick={addSaleImageField}
+                >
+                  + Thêm hình ảnh
+                </button>
               </div>
 
               <div className="form-row">
@@ -444,15 +543,15 @@ const SaleProducts = () => {
             </div>
             <div className="detail-info">
               <h2>{selectedProduct.name}</h2>
-                             <div className="detail-row">
-                 <span className="original-price">{(selectedProduct.price || 0).toLocaleString('vi-VN')} VNĐ</span>
-                 <span className="discount-price">{(selectedProduct.discount_price || 0).toLocaleString('vi-VN')} VNĐ</span>
-                 <span className="detail-discount">-{selectedProduct.discount_percent || 0}%</span>
-               </div>
+              <div className="detail-row">
+                <span className="original-price">{(selectedProduct.price || 0).toLocaleString('vi-VN')} VNĐ</span>
+                <span className="discount-price">{(selectedProduct.discount_price || 0).toLocaleString('vi-VN')} VNĐ</span>
+                <span className="detail-discount">-{selectedProduct.discount_percent || 0}%</span>
+              </div>
               <div className="detail-row"><b>Tồn kho:</b> {selectedProduct.stock}</div>
               <div className="detail-row"><b>Đã bán:</b> {selectedProduct.sold || 0}</div>
-                             <div className="detail-row"><b>Kích thước:</b> {(selectedProduct.size || []).join(', ')}</div>
-               <div className="detail-row"><b>Màu sắc:</b> {(selectedProduct.colors || []).join(', ')}</div>
+              <div className="detail-row"><b>Kích thước:</b> {(selectedProduct.size || []).join(', ')}</div>
+              <div className="detail-row"><b>Màu sắc:</b> {(selectedProduct.colors || []).join(', ')}</div>
               <div className="detail-row"><b>Danh mục:</b> {selectedProduct.categoryCode}</div>
               <div className="detail-row">
                 <b>Trạng thái:</b>
@@ -520,17 +619,17 @@ const SaleProducts = () => {
                     />
                   </td>
                   <td>{product.name}</td>
-                                     <td><span className="original-price">{(product.price || 0).toLocaleString('vi-VN')} VNĐ</span></td>
-                   <td><span className="discount-price">{(product.discount_price || 0).toLocaleString('vi-VN')} VNĐ</span></td>
-                                     <td>-{product.discount_percent || 0}%</td>
+                  <td><span className="original-price">{(product.price || 0).toLocaleString('vi-VN')} VNĐ</span></td>
+                  <td><span className="discount-price">{(product.discount_price || 0).toLocaleString('vi-VN')} VNĐ</span></td>
+                  <td>-{product.discount_percent || 0}%</td>
                   <td>{product.stock}</td>
                   <td>
                     <span style={{ cursor: 'pointer' }} onClick={() => handleUpdateSoldCount(product._id, product.sold || 0)}>
                       {product.sold || 0}
                     </span>
                   </td>
-                                     <td>{(product.size || []).join(', ')}</td>
-                   <td>{(product.colors || []).join(', ')}</td>
+                  <td>{(product.size || []).join(', ')}</td>
+                  <td>{(product.colors || []).join(', ')}</td>
                   <td>{product.categoryCode}</td>
                   <td>
                     <span className={`status-indicator ${product.isDiscount ? 'status-active' : 'status-inactive'}`}>
