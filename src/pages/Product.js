@@ -149,7 +149,7 @@ const Product = () => {
         try {
             // Filter out empty image URLs
             const filteredImages = newProduct.images.filter(img => img.trim() !== '');
-            
+
             // Chuyển đổi price, stock và sold thành số
             const productData = {
                 ...newProduct,
@@ -241,7 +241,7 @@ const Product = () => {
         try {
             // Filter out empty image URLs
             const filteredImages = newProduct.images.filter(img => img.trim() !== '');
-            
+
             const productData = {
                 ...newProduct,
                 price: Number(newProduct.price),
@@ -289,6 +289,19 @@ const Product = () => {
             });
         } catch (error) {
             return 'N/A';
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            try {
+                await productAPI.deleteProduct(id);
+                setProducts(products.filter(p => p._id !== id));
+                alert('Xóa sản phẩm thành công!');
+            } catch (err) {
+                alert('Không thể xóa sản phẩm');
+                console.error('Error deleting product:', err);
+            }
         }
     };
 
@@ -353,7 +366,7 @@ const Product = () => {
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <label>Đã bán:</label>
                             <input
                                 type="number"
@@ -362,7 +375,7 @@ const Product = () => {
                                 onChange={handleInputChange}
                                 placeholder="0"
                             />
-                        </div>
+                        </div> */}
                         <div className="form-group">
                             <label>Mô tả:</label>
                             <textarea
@@ -493,7 +506,7 @@ const Product = () => {
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <label>Đã bán:</label>
                             <input
                                 type="number"
@@ -502,7 +515,7 @@ const Product = () => {
                                 onChange={handleInputChange}
                                 placeholder="0"
                             />
-                        </div>
+                        </div> */}
                         <div className="form-group">
                             <label>Mô tả:</label>
                             <textarea
@@ -617,12 +630,12 @@ const Product = () => {
                                                 key={index}
                                                 src={image || 'https://via.placeholder.com/120x120?text=No+Image'}
                                                 alt={`${selectedProduct.name || 'Product'} ${index + 1}`}
-                                                style={{ 
-                                                    width: 120, 
-                                                    height: 120, 
-                                                    objectFit: 'contain', 
-                                                    borderRadius: 8, 
-                                                    margin: '0.5rem', 
+                                                style={{
+                                                    width: 120,
+                                                    height: 120,
+                                                    objectFit: 'contain',
+                                                    borderRadius: 8,
+                                                    margin: '0.5rem',
                                                     background: '#fff',
                                                     border: '1px solid #ddd'
                                                 }}
@@ -632,12 +645,12 @@ const Product = () => {
                                         <img
                                             src="https://via.placeholder.com/120x120?text=No+Image"
                                             alt="No product available"
-                                            style={{ 
-                                                width: 120, 
-                                                height: 120, 
-                                                objectFit: 'contain', 
-                                                borderRadius: 8, 
-                                                margin: '0 auto 1rem', 
+                                            style={{
+                                                width: 120,
+                                                height: 120,
+                                                objectFit: 'contain',
+                                                borderRadius: 8,
+                                                margin: '0 auto 1rem',
                                                 background: '#fff',
                                                 display: 'block',
                                                 border: '1px solid #ddd'
@@ -718,9 +731,20 @@ const Product = () => {
                                         >
                                             Sửa
                                         </button>
+                                        {/* <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(product._id);
+                                            }}
+                                            className="btn btn-delete"
+                                        >
+                                            Xóa
+                                        </button> */}
 
                                     </div>
+
                                 </td>
+
                             </tr>
                         ))}
                     </tbody>
