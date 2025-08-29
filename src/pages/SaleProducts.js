@@ -21,8 +21,7 @@ const SaleProducts = () => {
     images: [''], // 👈 mảng để nhập nhiều ảnh
     size: [],
     colors: [],
-    categoryCode: '',
-    isDiscount: true
+    categoryCode: ''
   });
 
   useEffect(() => {
@@ -45,8 +44,7 @@ const SaleProducts = () => {
         sold: product.sold || 0,
         size: Array.isArray(product.size) ? product.size : [],
         colors: Array.isArray(product.colors) ? product.colors : [],
-        images: Array.isArray(product.images) ? product.images : [],
-        isDiscount: product.isDiscount !== undefined ? product.isDiscount : true
+        images: Array.isArray(product.images) ? product.images : []
       }));
       setSaleProducts(formattedData);
     } catch (error) {
@@ -92,18 +90,18 @@ const SaleProducts = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (productId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-      try {
-        await saleProductAPI.deleteSaleProduct(productId);
-        setSaleProducts(saleProducts.filter(p => p._id !== productId));
-        alert('Xóa sản phẩm thành công!');
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert(error.message || 'Có lỗi xảy ra khi xóa sản phẩm!');
-      }
-    }
-  };
+  // const handleDelete = async (productId) => {
+  //   if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+  //     try {
+  //       await saleProductAPI.deleteSaleProduct(productId);
+  //       setSaleProducts(saleProducts.filter(p => p._id !== productId));
+  //       alert('Xóa sản phẩm thành công!');
+  //     } catch (error) {
+  //       console.error('Error deleting product:', error);
+  //       alert(error.message || 'Có lỗi xảy ra khi xóa sản phẩm!');
+  //     }
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,8 +176,7 @@ const SaleProducts = () => {
       images: validImages, // 👈 lấy nhiều ảnh
       size: size.split(',').map(s => s.trim()).filter(Boolean),
       colors: colors.split(',').map(c => c.trim()).filter(Boolean),
-      categoryCode,
-      isDiscount: true
+      categoryCode
     };
 
 
@@ -228,18 +225,7 @@ const SaleProducts = () => {
     }
   };
 
-  const handleToggleDiscountStatus = async (productId, currentStatus) => {
-    try {
-      await saleProductAPI.updateDiscountStatus(productId, !currentStatus);
-      setSaleProducts(saleProducts.map(p =>
-        p._id === productId ? { ...p, isDiscount: !currentStatus } : p
-      ));
-      alert('Cập nhật trạng thái giảm giá thành công!');
-    } catch (error) {
-      console.error('Error updating discount status:', error);
-      alert(error.message || 'Có lỗi xảy ra khi cập nhật trạng thái!');
-    }
-  };
+
 
   const handleUpdateSoldCount = async (productId, currentSold) => {
     const newSoldCount = prompt('Nhập số lượng đã bán mới:', currentSold);
@@ -327,8 +313,7 @@ const SaleProducts = () => {
               images: [''], // reset về 1 ô input ảnh
               size: [],
               colors: [],
-              categoryCode: '',
-              isDiscount: true
+              categoryCode: ''
             });
             setShowForm(true);
           }}
@@ -553,14 +538,7 @@ const SaleProducts = () => {
               <div className="detail-row"><b>Kích thước:</b> {(selectedProduct.size || []).join(', ')}</div>
               <div className="detail-row"><b>Màu sắc:</b> {(selectedProduct.colors || []).join(', ')}</div>
               <div className="detail-row"><b>Danh mục:</b> {selectedProduct.categoryCode}</div>
-              <div className="detail-row">
-                <b>Trạng thái:</b>
-                <span className={`status-indicator ${selectedProduct.isDiscount ? 'status-active' : 'status-inactive'}`}
-                  style={{ marginLeft: 8 }}>
-                  <span className="status-icon">{selectedProduct.isDiscount ? '' : ''}</span>
-                  {selectedProduct.isDiscount ? 'Đang giảm giá' : 'Không giảm giá'}
-                </span>
-              </div>
+
               <div className="detail-desc">
                 <b>Mô tả:</b>
                 <div>{selectedProduct.description}</div>
@@ -598,7 +576,7 @@ const SaleProducts = () => {
                 <th>Kích thước</th>
                 <th>Màu sắc</th>
                 <th>Danh mục</th>
-                <th>Trạng thái</th>
+
                 <th>Thao tác</th>
               </tr>
             </thead>
@@ -631,14 +609,7 @@ const SaleProducts = () => {
                   <td>{(product.size || []).join(', ')}</td>
                   <td>{(product.colors || []).join(', ')}</td>
                   <td>{product.categoryCode}</td>
-                  <td>
-                    <span className={`status-indicator ${product.isDiscount ? 'status-active' : 'status-inactive'}`}>
-                      <span className="status-icon">
-                        {product.isDiscount ? '' : ''}
-                      </span>
-                      {product.isDiscount ? 'Đang giảm giá' : 'Không giảm giá'}
-                    </span>
-                  </td>
+
                   <td className="action-cell">
                     <div className="action-group">
                       <button
@@ -647,18 +618,8 @@ const SaleProducts = () => {
                       >
                         Sửa
                       </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(product._id)}
-                      >
-                        Xóa
-                      </button>
-                      <button
-                        className={`discount-toggle-btn ${product.isDiscount ? 'active' : 'inactive'}`}
-                        onClick={() => handleToggleDiscountStatus(product._id, product.isDiscount)}
-                      >
-                        {product.isDiscount ? 'Tắt giảm giá' : 'Bật giảm giá'}
-                      </button>
+
+
                     </div>
                   </td>
                 </tr>
